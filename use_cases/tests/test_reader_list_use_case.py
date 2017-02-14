@@ -4,7 +4,7 @@ import pytest
 from unittest import mock
 
 from domains.reader import Reader
-from use_cases import reader_use_cases
+from use_cases import reader_use_cases, request_objects
 
 
 @pytest.fixture
@@ -23,7 +23,12 @@ def domain_readers():
 def test_book_list_without_parameters(domain_readers):
     repo = mock.Mock()
     repo.list.return_value = domain_readers
+
     reader_list_use_case = reader_use_cases.ReaderListUseCase(repo)
-    result = reader_list_use_case.execute()
+    request_object = request_objects.ReaderListRequestObject.from_dict({})
+
+    response_object = reader_list_use_case.execute(request_object)
+    assert bool(response_object) is True
+
     repo.list.assert_called_with()
-    assert result == domain_readers
+    assert response_object.value == domain_readers
