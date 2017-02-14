@@ -11,5 +11,19 @@ class Book(object):
         self.is_available = is_available
         self.reader = reader
 
+    @classmethod
+    def from_dict(cls, adict):
+        book = Book(
+            code=adict["code"],
+            title=adict["title"],
+            author=adict["author"],
+            year=adict["year"],
+            language=adict["language"],
+            is_available=adict["is_available"],
+            reader=adict["reader"]
+        )
+
+        return book
+
 
 DomainModel.register(Book)
