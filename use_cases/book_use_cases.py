@@ -1,10 +1,10 @@
-from shared import response_object
+from shared import response_object, use_case
 
 
-class BookListUseCase(object):
+class BookListUseCase(use_case.UseCase):
     def __init__(self, repo):
         self.repo = repo
 
-    def execute(self, request_object):
-        books = self.repo.list()
-        return response_object.ResponseSuccess(books)
+    def process_request(self, request_object):
+        domain_book = self.repo.list(filters=request_object.filters)
+        return response_object.ResponseSuccess(domain_book)

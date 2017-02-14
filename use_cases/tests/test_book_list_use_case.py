@@ -6,6 +6,7 @@ from unittest import mock
 from domains.book import Book
 from domains.reader import Reader
 from use_cases import book_use_cases, request_objects
+from shared import response_object
 
 
 @pytest.fixture
@@ -32,5 +33,51 @@ def test_book_list_without_parameters(domain_books):
     response_object = book_list_use_case.execute(request_object)
     assert bool(response_object) is True
 
-    repo.list.assert_called_with()
+    repo.list.assert_called_with(filters=None)
     assert response_object.value == domain_books
+
+
+def test_book_list_with_filters(domain_books):
+    repo = mock.Mock()
+    repo.list.return_value = domain_books
+
+    book_list_use_case = book_use_cases.BookListUseCase(repo)
+    qry_filters = {"a": 5}
+    request_object = request_objects.BookListRequestObject.from_dict({"filters": qry_filters})
+
+    response_object = book_list_use_case.execute(request_object)
+
+    assert bool(response_object) is True
+    repo.list.assert_called_with(filters=qry_filters)
+    assert response_object.value == domain_books
+
+
+def test_book_list_handles_generic_error():
+    repo = mock.Mock()
+    repo.list.side_effect = Exception("Just an error message")
+
+    book_list_use_case = book_use_cases.BookListUseCase(repo)
+    request_object = request_objects.BookListRequestObject.from_dict({})
+
+    response = book_list_use_case.execute(request_object)
+
+    assert bool(response) is False
+    assert response.value == {
+        "type": response_object.ResponseFailure.SYSTEM_ERROR,
+        "message": "Exception: Just an error message"
+    }
+
+
+def test_book_list_handles_bad_request():
+    repo = mock.Mock()
+
+    book_list_use_case = book_use_cases.BookListUseCase(repo)
+    request_object = request_objects.BookListRequestObject.from_dict({"filters": 5})
+
+    response = book_list_use_case.execute(request_object)
+
+    assert bool(response) is False
+    assert response.value == {
+        "type": response_object.ResponseFailure.PARAMETERS_ERROR,
+        "message": "filters: Is not iterable"
+    }
