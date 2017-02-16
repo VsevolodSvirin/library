@@ -1,7 +1,7 @@
 import pytest
 
 from shared import response_object
-from use_cases import request_objects
+from use_cases.requests import books
 
 
 @pytest.fixture
@@ -55,13 +55,13 @@ def test_response_failure_initialization_with_exception():
 
 
 def test_response_failure_from_invalid_request_object():
-    response = response_object.ResponseFailure.build_from_invalid_request_object(request_objects.InvalidRequestObject())
+    response = response_object.ResponseFailure.build_from_invalid_request_object(books.InvalidRequestObject())
 
     assert bool(response) is False
 
 
 def test_response_failure_from_invalid_request_object_with_errors():
-    request_object = request_objects.InvalidRequestObject()
+    request_object = books.InvalidRequestObject()
     request_object.add_error('path', 'Is mandatory')
     request_object.add_error('path', "can't be blank")
 
