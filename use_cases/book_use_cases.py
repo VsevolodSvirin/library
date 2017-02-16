@@ -15,5 +15,5 @@ class BookAddUseCase(use_case.UseCase):
         self.repo = repo
 
     def process_request(self, request_object):
-        book_is_added = self.repo.add(book=request_object.book)
-        return response_object.ResponseSuccess(book_is_added)
+        book = self.repo.create(book=request_object.init_values)
+        return response_object.ResponseSuccess(book)
