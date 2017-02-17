@@ -80,5 +80,5 @@ def test_book_list_handles_bad_request():
     assert bool(response) is False
     assert response.value == {
         "type": response_object.ResponseFailure.PARAMETERS_ERROR,
-        "message": "filters: Is not iterable"
+        "message": [{'filters': 'Is not iterable'}]
     }

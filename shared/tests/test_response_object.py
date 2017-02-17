@@ -69,7 +69,7 @@ def test_response_failure_from_invalid_request_object_with_errors():
 
     assert bool(response) is False
     assert response.type == response_object.ResponseFailure.PARAMETERS_ERROR
-    assert response.message == "path: Is mandatory\npath: can't be blank"
+    assert response.message == [{'path': 'Is mandatory'}, {'path': "can't be blank"}]
 
 
 def test_response_failure_build_resource_error():

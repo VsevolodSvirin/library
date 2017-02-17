@@ -26,7 +26,7 @@ def test_use_case_can_process_invalid_requests_and_returns_response_failure():
 
     assert not response
     assert response.type == response_object.ResponseFailure.PARAMETERS_ERROR
-    assert response.message == 'someparam: somemessage'
+    assert response.message == [{'someparam': 'somemessage'}]
 
 
 def test_use_case_can_manage_generic_exception_from_process_request():
