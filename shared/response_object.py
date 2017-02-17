@@ -1,5 +1,11 @@
+import json
+
+
 class ResponseSuccess(object):
+    SUCCESS = 'Success'
+
     def __init__(self, value=None):
+        self.type = self.SUCCESS
         self.value = value
 
     def __nonzero__(self):
@@ -32,12 +38,6 @@ class ResponseFailure(object):
     __bool__ = __nonzero__
 
     @classmethod
-    def build_from_invalid_request_object(cls, invalid_request_object):
-        message = "\n".join(["{}: {}".format(err['parameter'], err['message'])
-                             for err in invalid_request_object.errors])
-        return cls(cls.PARAMETERS_ERROR, message)
-
-    @classmethod
     def build_resource_error(cls, message=None):
         return cls(cls.RESOURCE_ERROR, message)
 
@@ -51,6 +51,6 @@ class ResponseFailure(object):
 
     @classmethod
     def build_from_invalid_request_object(cls, invalid_request_object):
-        message = "\n".join(["{}: {}".format(err['parameter'], err['message'])
-                             for err in invalid_request_object.errors])
+        message = [{err['parameter']: err['message']}
+                   for err in invalid_request_object.errors]
         return cls.build_parameters_error(message)
