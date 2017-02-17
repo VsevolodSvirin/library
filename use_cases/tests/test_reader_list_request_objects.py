@@ -1,4 +1,4 @@
-from use_cases.requests import readers
+from use_cases.request_objects import readers
 
 
 def test_build_reader_list_request_object_without_parameters():

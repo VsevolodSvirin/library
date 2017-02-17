@@ -1,9 +1,7 @@
 import pytest
 
-from domains.book import Book
-from shared import use_case
 from shared.request_object import InvalidRequestObject
-from use_cases.requests import books
+from use_cases.request_objects import books
 
 
 @pytest.fixture

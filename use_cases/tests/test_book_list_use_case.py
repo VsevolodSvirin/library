@@ -6,8 +6,8 @@ import pytest
 from domains.book import Book
 from domains.reader import Reader
 from shared import response_object
-from use_cases import book_use_cases
-from use_cases.requests import books
+from use_cases import books
+from use_cases.request_objects import books as request_books
 
 
 @pytest.fixture
@@ -28,8 +28,8 @@ def test_book_list_without_parameters(domain_books):
     repo = mock.Mock()
     repo.list.return_value = domain_books
 
-    book_list_use_case = book_use_cases.BookListUseCase(repo)
-    request_object = books.BookListRequestObject.from_dict({})
+    book_list_use_case = books.BookListUseCase(repo)
+    request_object = request_books.BookListRequestObject.from_dict({})
 
     response_object = book_list_use_case.execute(request_object)
     assert bool(response_object) is True
@@ -42,9 +42,9 @@ def test_book_list_with_filters(domain_books):
     repo = mock.Mock()
     repo.list.return_value = domain_books
 
-    book_list_use_case = book_use_cases.BookListUseCase(repo)
+    book_list_use_case = books.BookListUseCase(repo)
     qry_filters = {"a": 5}
-    request_object = books.BookListRequestObject.from_dict({"filters": qry_filters})
+    request_object = request_books.BookListRequestObject.from_dict({"filters": qry_filters})
 
     response_object = book_list_use_case.execute(request_object)
 
@@ -57,8 +57,8 @@ def test_book_list_handles_generic_error():
     repo = mock.Mock()
     repo.list.side_effect = Exception("Just an error message")
 
-    book_list_use_case = book_use_cases.BookListUseCase(repo)
-    request_object = books.BookListRequestObject.from_dict({})
+    book_list_use_case = books.BookListUseCase(repo)
+    request_object = request_books.BookListRequestObject.from_dict({})
 
     response = book_list_use_case.execute(request_object)
 
@@ -72,8 +72,8 @@ def test_book_list_handles_generic_error():
 def test_book_list_handles_bad_request():
     repo = mock.Mock()
 
-    book_list_use_case = book_use_cases.BookListUseCase(repo)
-    request_object = books.BookListRequestObject.from_dict({"filters": 5})
+    book_list_use_case = books.BookListUseCase(repo)
+    request_object = request_books.BookListRequestObject.from_dict({"filters": 5})
 
     response = book_list_use_case.execute(request_object)
 

@@ -5,8 +5,8 @@ import pytest
 
 from domains.reader import Reader
 from shared import response_object
-from use_cases import reader_use_cases
-from use_cases.requests import readers
+from use_cases import readers
+from use_cases.request_objects import readers as request_readers
 
 
 @pytest.fixture
@@ -26,8 +26,8 @@ def test_reader_list_without_parameters(domain_readers):
     repo = mock.Mock()
     repo.list.return_value = domain_readers
 
-    reader_list_use_case = reader_use_cases.ReaderListUseCase(repo)
-    request_object = readers.ReaderListRequestObject.from_dict({})
+    reader_list_use_case = readers.ReaderListUseCase(repo)
+    request_object = request_readers.ReaderListRequestObject.from_dict({})
 
     response_object = reader_list_use_case.execute(request_object)
     assert bool(response_object) is True
@@ -40,9 +40,9 @@ def test_reader_list_with_filters(domain_readers):
     repo = mock.Mock()
     repo.list.return_value = domain_readers
 
-    reader_list_use_case = reader_use_cases.ReaderListUseCase(repo)
+    reader_list_use_case = readers.ReaderListUseCase(repo)
     qry_filters = {"a": 5}
-    request_object = readers.ReaderListRequestObject.from_dict({"filters": qry_filters})
+    request_object = request_readers.ReaderListRequestObject.from_dict({"filters": qry_filters})
 
     response_object = reader_list_use_case.execute(request_object)
 
@@ -55,8 +55,8 @@ def test_reader_list_handles_generic_error():
     repo = mock.Mock()
     repo.list.side_effect = Exception("Just an error message")
 
-    reader_list_use_case = reader_use_cases.ReaderListUseCase(repo)
-    request_object = readers.ReaderListRequestObject.from_dict({})
+    reader_list_use_case = readers.ReaderListUseCase(repo)
+    request_object = request_readers.ReaderListRequestObject.from_dict({})
 
     response = reader_list_use_case.execute(request_object)
 
@@ -70,8 +70,8 @@ def test_reader_list_handles_generic_error():
 def test_reader_list_handles_bad_request():
     repo = mock.Mock()
 
-    reader_list_use_case = reader_use_cases.ReaderListUseCase(repo)
-    request_object = readers.ReaderListRequestObject.from_dict({"filters": 5})
+    reader_list_use_case = readers.ReaderListUseCase(repo)
+    request_object = request_readers.ReaderListRequestObject.from_dict({"filters": 5})
 
     response = reader_list_use_case.execute(request_object)
 

@@ -1,4 +1,4 @@
-from use_cases.requests import books
+from use_cases.request_objects import books
 
 
 def test_build_book_list_request_object_without_parameters():

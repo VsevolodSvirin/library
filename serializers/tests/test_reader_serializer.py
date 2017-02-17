@@ -3,7 +3,7 @@ import json
 import pytest
 
 from domains.reader import Reader
-from serializers import reader_serializer
+from serializers import readers
 
 
 def test_serialize_domain_reader():
@@ -17,9 +17,9 @@ def test_serialize_domain_reader():
         }
     """
 
-    assert json.loads(json.dumps(reader, cls=reader_serializer.ReaderEncoder)) == json.loads(expected_json)
+    assert json.loads(json.dumps(reader, cls=readers.ReaderEncoder)) == json.loads(expected_json)
 
 
 def test_serialize_domain_book_wrong_type():
     with pytest.raises(TypeError):
-        json.dumps(datetime.datetime.now(), cls=reader_serializer.ReaderEncoder)
+        json.dumps(datetime.datetime.now(), cls=readers.ReaderEncoder)

@@ -3,8 +3,8 @@ from unittest import mock
 import pytest
 
 from domains.book import Book
-from use_cases import book_use_cases
-from use_cases.requests import books
+from use_cases import books
+from use_cases.request_objects import books as request_books
 
 
 @pytest.fixture
@@ -19,8 +19,8 @@ def test_book_list_without_parameters(adict):
     repo = mock.Mock()
     repo.create.return_value = book
 
-    book_list_add_case = book_use_cases.BookAddUseCase(repo)
-    request_object = books.BookAddRequestObject.from_dict(adict)
+    book_list_add_case = books.BookAddUseCase(repo)
+    request_object = request_books.BookAddRequestObject.from_dict(adict)
 
     response_object = book_list_add_case.execute(request_object)
     assert bool(response_object) is True

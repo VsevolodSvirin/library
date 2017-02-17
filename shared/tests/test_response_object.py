@@ -1,7 +1,7 @@
 import pytest
 
 from shared import response_object
-from use_cases.requests import books
+from use_cases.request_objects import books
 
 
 @pytest.fixture
