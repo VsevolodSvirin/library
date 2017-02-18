@@ -1,9 +1,12 @@
+import datetime
+import pytest
 from unittest.mock import patch
 
 from django.db import IntegrityError
 from django.test import TestCase
 
 from Django.books.models import Book
+from Django.readers.models import Reader
 from repo.DjangoORM.books import DjangoORMBookRepository
 
 
@@ -49,3 +52,29 @@ class BookRepositoryTestCase(TestCase):
         first_book = DjangoORMBookRepository.create(**adict)
 
         self.assertRaises(IntegrityError, DjangoORMBookRepository.create, **adict)
+
+    def test_book_list(self):
+        repo = DjangoORMBookRepository()
+        repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
+                    author='George Orwell', year=1984, language='English', is_available=True, reader=None)
+        repo.create(code='fe2c3195-aeff-487a-a08f-e0bdc0ec6e9a', title='The Lord of the Rings',
+                    author='J.R.R. Tolkien', year=2000, language='English', is_available=False, reader=None)
+        repo.create(code='913694c6-435a-4366-ba0d-da5334a611b2', title='The Master and Margarita',
+                    author='Mikhail Bulgakov', year=2005, language='Russian', is_available=False, reader=None)
+        repo.create(code='eed76e77-55c1-41ce-985d-ca49bf6c0585', title='The Dark Tower',
+                    author='Stephen King', year=2015, language='English', is_available=True, reader=None)
+
+        expected_result = {
+            Book(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984', author='George Orwell',
+                 year=1984, language='English', is_available=True, reader=None),
+            Book(code='fe2c3195-aeff-487a-a08f-e0bdc0ec6e9a', title='The Lord of the Rings', author='J.R.R. Tolkien',
+                 year=2000, language='English', is_available=False, reader=None),
+            Book(code='913694c6-435a-4366-ba0d-da5334a611b2', title='The Master and Margarita', author='Mikhail Bulgakov',
+                 year=2005, language='Russian', is_available=False, reader=None),
+            Book(code='eed76e77-55c1-41ce-985d-ca49bf6c0585', title='The Dark Tower', author='Stephen King',
+                 year=2015, language='English', is_available=True, reader=None)
+        }
+
+        repo_list = set(book for book in repo.list())
+        self.assertQuerysetEqual(repo.list(), expected_result)
+        self.assertQuerysetEqual(repo.list(), expected_result)

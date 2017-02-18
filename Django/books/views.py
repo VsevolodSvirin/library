@@ -17,7 +17,7 @@ STATUS_CODES = {
 }
 
 
-def books_add(request):
+def books_list(request):
     status_codes = copy.deepcopy(STATUS_CODES)
     status_codes[res.ResponseSuccess.SUCCESS] = 201
 
