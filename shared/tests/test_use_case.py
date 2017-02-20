@@ -15,7 +15,7 @@ def test_use_case_cannot_process_valid_requests():
     assert not response
     assert response.type == errors.Error.SYSTEM_ERROR
     assert response.value == \
-           {'NotImplementedError: process_request() not implemented by UseCase class'}
+           {'system error': ['process_request() not implemented by UseCase class']}
 
 
 def test_use_case_can_process_invalid_requests_and_returns_response_failure():
@@ -42,4 +42,4 @@ def test_use_case_can_manage_generic_exception_from_process_request():
 
     assert not response
     assert response.type == errors.Error.SYSTEM_ERROR
-    assert response.value == {'TestException: somemessage'}
+    assert response.value == {'system error': ['somemessage']}

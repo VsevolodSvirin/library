@@ -23,7 +23,7 @@ class Error(object):
 
     @classmethod
     def build_system_error(cls, exc):
-        message = {'{}: {}'.format(exc.__class__.__name__, '{}'.format(exc))}
+        message = {'system error': [arg for arg in exc.args]}
         return cls(cls.SYSTEM_ERROR, message)
 
     @classmethod

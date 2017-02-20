@@ -33,7 +33,6 @@ class BooksAddViewTestCase(TestCase):
         mocked_use_case().execute.return_value = ro.ResponseSuccess(book)
 
         response = self.c.post(reverse('books_list'), {})
-        # response = self.c.post(reverse('books_list'), book.__dict__)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)), json.loads(response.content))
 
@@ -48,12 +47,12 @@ class BooksAddViewTestCase(TestCase):
         response = self.c.post(reverse('books_list'), {})
         self.assertEqual(response.status_code, 400)
 
-        response_error_data = [{'year': 'invalid year'}, {'title': 'invalid title'}]
+        response_error_data = {'year': ['invalid year'], 'title': ['invalid title']}
         self.assertEqual(json.loads(response.content), response_error_data)
 
     @patch('Django.books.views.BookAddUseCase')
     def test_with_resource_error(self, mocked_use_case):
-        error = errors.Error.build_resource_error('page not found :(')
+        error = errors.Error.build_resource_error()
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.post(reverse('books_list'), {})
@@ -61,7 +60,7 @@ class BooksAddViewTestCase(TestCase):
 
     @patch('Django.books.views.BookAddUseCase')
     def test_with_system_error(self, mocked_use_case):
-        error = errors.Error.build_system_error('database failure')
+        error = errors.Error.build_system_error(Exception('database failure',))
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.post(reverse('books_list'), {})
@@ -100,12 +99,12 @@ class BookListViewTestCase(TestCase):
         response = self.c.get(reverse('books_list'), {})
         self.assertEqual(response.status_code, 400)
 
-        response_error_data = [{'filter': 'bad filter'}]
+        response_error_data = {'filter': ['bad filter']}
         self.assertEqual(json.loads(response.content), response_error_data)
 
     @patch('Django.books.views.BookListUseCase')
     def test_with_resource_error(self, mocked_use_case):
-        error = errors.Error.build_resource_error('page not found :(')
+        error = errors.Error.build_resource_error()
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.get(reverse('books_list'), {})
@@ -113,7 +112,7 @@ class BookListViewTestCase(TestCase):
 
     @patch('Django.books.views.BookListUseCase')
     def test_get_failed_response(self, mock_use_case):
-        error = errors.Error.build_system_error('database failure')
+        error = errors.Error.build_system_error(Exception('database failure',))
         mock_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.get(reverse('books_list'), {})

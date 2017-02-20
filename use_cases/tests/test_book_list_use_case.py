@@ -64,7 +64,7 @@ def test_book_list_handles_generic_error():
     response = book_list_use_case.execute(request_object)
 
     assert bool(response) is False
-    assert response.value == {'Exception: Just an error message'}
+    assert response.value == {'system error': ['Just an error message']}
 
 
 def test_book_list_handles_bad_request():

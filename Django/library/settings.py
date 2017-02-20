@@ -6,8 +6,6 @@ import posixpath
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Quick-start development settings - unsuitable for production
-
 # SECURITY WARNING: keep the secret key used in production secret!
 
 SECRET_KEY = 'e61c9a62-aab5-4274-a3b3-0bb15c667851'

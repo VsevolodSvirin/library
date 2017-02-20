@@ -60,7 +60,7 @@ def test_error_build_parameters_error():
 
 
 def test_error_build_system_error():
-    error = errors.Error.build_system_error('test message')
+    error = errors.Error.build_system_error(Exception('test message',))
 
     assert error.type == errors.Error.SYSTEM_ERROR
-    assert error.message == {'str: test message'}
+    assert error.message == {'system error': ['test message']}

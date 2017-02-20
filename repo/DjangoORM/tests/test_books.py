@@ -1,5 +1,3 @@
-import json
-
 from unittest.mock import patch
 
 from django.db import IntegrityError
@@ -8,7 +6,6 @@ from django.test import TestCase
 from Django.books.models import Book
 from domains.book import Book as DomainBook
 from repo.DjangoORM.books import DjangoORMBookRepository
-from serializers.books import BookEncoder
 
 
 class TestException(Exception):
