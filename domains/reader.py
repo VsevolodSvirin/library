@@ -10,9 +10,9 @@ class Reader(object):
     @classmethod
     def from_dict(cls, adict):
         reader = Reader(
-            code=adict["code"],
-            full_name=adict["full_name"],
-            reg_date=adict["reg_date"]
+            code=adict['code'],
+            full_name=adict['full_name'],
+            reg_date=adict['reg_date']
         )
 
         return reader

@@ -15,4 +15,4 @@ class UseCase(object):
 
     def process_request(self, request_object):
         raise NotImplementedError(
-            "process_request() not implemented by UseCase class")
+            'process_request() not implemented by UseCase class')
