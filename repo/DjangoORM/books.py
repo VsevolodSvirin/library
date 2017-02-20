@@ -7,6 +7,7 @@ from domains.book import Book as DomainBook
 
 
 class DjangoORMBookRepository(object):
+    @classmethod
     def _convert_to_domain(self, book):
         domain_book = DomainBook.from_dict({
                 'code': book.code,
@@ -39,6 +40,9 @@ class DjangoORMBookRepository(object):
 
     @classmethod
     def list(cls, filters=None):
+        domain_books = []
         if not filters:
             books = Book.objects.all()
             domain_books = [cls._convert_to_domain(book) for book in books]
+
+        return domain_books

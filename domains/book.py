@@ -25,5 +25,9 @@ class Book(object):
 
         return book
 
+    def __eq__(self, other):
+        return self.code == other.code and self.title == other.title and self.author == other.author \
+               and self.year == other.year and self.language == other.language \
+               and self.is_available == other.is_available and self.reader == other.reader
 
 DomainModel.register(Book)

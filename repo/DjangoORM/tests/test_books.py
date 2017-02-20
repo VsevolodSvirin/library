@@ -1,13 +1,14 @@
-import datetime
-import pytest
+import json
+
 from unittest.mock import patch
 
 from django.db import IntegrityError
 from django.test import TestCase
 
 from Django.books.models import Book
-from Django.readers.models import Reader
+from domains.book import Book as DomainBook
 from repo.DjangoORM.books import DjangoORMBookRepository
+from serializers.books import BookEncoder
 
 
 class TestException(Exception):
@@ -64,17 +65,15 @@ class BookRepositoryTestCase(TestCase):
         repo.create(code='eed76e77-55c1-41ce-985d-ca49bf6c0585', title='The Dark Tower',
                     author='Stephen King', year=2015, language='English', is_available=True, reader=None)
 
-        expected_result = {
-            Book(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984', author='George Orwell',
-                 year=1984, language='English', is_available=True, reader=None),
-            Book(code='fe2c3195-aeff-487a-a08f-e0bdc0ec6e9a', title='The Lord of the Rings', author='J.R.R. Tolkien',
-                 year=2000, language='English', is_available=False, reader=None),
-            Book(code='913694c6-435a-4366-ba0d-da5334a611b2', title='The Master and Margarita', author='Mikhail Bulgakov',
-                 year=2005, language='Russian', is_available=False, reader=None),
-            Book(code='eed76e77-55c1-41ce-985d-ca49bf6c0585', title='The Dark Tower', author='Stephen King',
-                 year=2015, language='English', is_available=True, reader=None)
-        }
+        expected_result = [
+            DomainBook(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
+                       author='George Orwell', year=1984, language='English', is_available=True, reader=None),
+            DomainBook(code='fe2c3195-aeff-487a-a08f-e0bdc0ec6e9a', title='The Lord of the Rings',
+                       author='J.R.R. Tolkien', year=2000, language='English', is_available=False, reader=None),
+            DomainBook(code='913694c6-435a-4366-ba0d-da5334a611b2', title='The Master and Margarita',
+                       author='Mikhail Bulgakov', year=2005, language='Russian', is_available=False, reader=None),
+            DomainBook(code='eed76e77-55c1-41ce-985d-ca49bf6c0585', title='The Dark Tower',
+                       author='Stephen King', year=2015, language='English', is_available=True, reader=None)
+        ]
 
-        repo_list = set(book for book in repo.list())
-        self.assertQuerysetEqual(repo.list(), expected_result)
-        self.assertQuerysetEqual(repo.list(), expected_result)
+        self.assertEqual(repo.list(), expected_result)
