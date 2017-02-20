@@ -32,7 +32,6 @@ def test_new_book_validation(dictionaries):
 
 
 def test_validation_error_messages(dictionaries):
-    sort_keys = lambda err: err['parameter']
     try:
         request_object_errors = books.BookAddRequestObject.from_dict(dictionaries[0]).errors
     except AttributeError:
@@ -45,13 +44,13 @@ def test_validation_error_messages(dictionaries):
         request_object_errors = False
     assert bool(request_object_errors) is True
     invalid_request_object = InvalidRequestObject()
-    invalid_request_object.add_error(parameter='year', message='required key not provided')
-    invalid_request_object.add_error(parameter='title', message='required key not provided')
-    invalid_request_object.add_error(parameter='author', message='required key not provided')
-    invalid_request_object.add_error(parameter='language', message='required key not provided')
+    invalid_request_object.add_error(parameter='year', message=['required key not provided'])
+    invalid_request_object.add_error(parameter='title', message=['required key not provided'])
+    invalid_request_object.add_error(parameter='author', message=['required key not provided'])
+    invalid_request_object.add_error(parameter='language', message=['required key not provided'])
 
-    assert sorted(request_object_errors, key=sort_keys) == \
-           sorted(invalid_request_object.errors, key=sort_keys)
+    assert sorted(request_object_errors) == \
+           sorted(invalid_request_object.errors)
 
     try:
         request_object_errors = books.BookAddRequestObject.from_dict(dictionaries[2]).errors
@@ -60,9 +59,9 @@ def test_validation_error_messages(dictionaries):
     assert bool(request_object_errors) is True
 
     invalid_request_object = InvalidRequestObject()
-    invalid_request_object.add_error(parameter='year', message='does not match regular expression')
-    assert sorted(request_object_errors, key=sort_keys) == \
-           sorted(invalid_request_object.errors, key=sort_keys)
+    invalid_request_object.add_error(parameter='year', message=['does not match regular expression'])
+    assert sorted(request_object_errors) == \
+           sorted(invalid_request_object.errors)
 
     try:
         request_object_errors = books.BookAddRequestObject.from_dict(dictionaries[3]).errors
@@ -77,9 +76,9 @@ def test_validation_error_messages(dictionaries):
     assert bool(request_object_errors) is True
 
     invalid_request_object = InvalidRequestObject()
-    invalid_request_object.add_error(parameter='year', message='does not match regular expression')
-    invalid_request_object.add_error(parameter='author', message='expected str')
-    assert sorted(request_object_errors, key=sort_keys) == \
-           sorted(invalid_request_object.errors, key=sort_keys)
+    invalid_request_object.add_error(parameter='year', message=['does not match regular expression'])
+    invalid_request_object.add_error(parameter='author', message=['expected str'])
+    assert sorted(request_object_errors) == \
+           sorted(invalid_request_object.errors)
 
 

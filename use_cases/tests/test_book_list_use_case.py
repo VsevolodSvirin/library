@@ -5,6 +5,7 @@ import pytest
 
 from domains.book import Book
 from domains.reader import Reader
+from shared import errors
 from shared import response_object
 from use_cases import books
 from use_cases.request_objects import books as request_books
@@ -63,10 +64,7 @@ def test_book_list_handles_generic_error():
     response = book_list_use_case.execute(request_object)
 
     assert bool(response) is False
-    assert response.value == {
-        "type": response_object.ResponseFailure.SYSTEM_ERROR,
-        "message": "Exception: Just an error message"
-    }
+    assert response.value == {'Exception: Just an error message'}
 
 
 def test_book_list_handles_bad_request():
@@ -78,7 +76,4 @@ def test_book_list_handles_bad_request():
     response = book_list_use_case.execute(request_object)
 
     assert bool(response) is False
-    assert response.value == {
-        "type": response_object.ResponseFailure.PARAMETERS_ERROR,
-        "message": [{'filters': 'Is not iterable'}]
-    }
+    assert response.value == {'filters': ['Is not iterable']}

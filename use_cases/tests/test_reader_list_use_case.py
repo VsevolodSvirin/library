@@ -4,6 +4,7 @@ from unittest import mock
 import pytest
 
 from domains.reader import Reader
+from shared import errors
 from shared import response_object
 from use_cases import readers
 from use_cases.request_objects import readers as request_readers
@@ -61,10 +62,7 @@ def test_reader_list_handles_generic_error():
     response = reader_list_use_case.execute(request_object)
 
     assert bool(response) is False
-    assert response.value == {
-        "type": response_object.ResponseFailure.SYSTEM_ERROR,
-        "message": "Exception: Just an error message"
-    }
+    assert response.value == {'Exception: Just an error message'}
 
 
 def test_reader_list_handles_bad_request():
@@ -76,7 +74,4 @@ def test_reader_list_handles_bad_request():
     response = reader_list_use_case.execute(request_object)
 
     assert bool(response) is False
-    assert response.value == {
-        "type": response_object.ResponseFailure.PARAMETERS_ERROR,
-        "message": [{'filters': 'Is not iterable'}]
-    }
+    assert response.value == {'filters': ['Is not iterable']}

@@ -1,5 +1,6 @@
 from unittest import mock
 
+from shared import errors
 from shared import request_object, response_object
 from shared import use_case as uc
 
@@ -12,9 +13,9 @@ def test_use_case_cannot_process_valid_requests():
     response = use_case.execute(valid_request_object)
 
     assert not response
-    assert response.type == response_object.ResponseFailure.SYSTEM_ERROR
-    assert response.message == \
-           'NotImplementedError: process_request() not implemented by UseCase class'
+    assert response.type == errors.Error.SYSTEM_ERROR
+    assert response.value == \
+           {'NotImplementedError: process_request() not implemented by UseCase class'}
 
 
 def test_use_case_can_process_invalid_requests_and_returns_response_failure():
@@ -25,8 +26,8 @@ def test_use_case_can_process_invalid_requests_and_returns_response_failure():
     response = use_case.execute(invalid_request_object)
 
     assert not response
-    assert response.type == response_object.ResponseFailure.PARAMETERS_ERROR
-    assert response.message == [{'someparam': 'somemessage'}]
+    assert response.type == errors.Error.PARAMETERS_ERROR
+    assert response.value == {'someparam': ['somemessage']}
 
 
 def test_use_case_can_manage_generic_exception_from_process_request():
@@ -40,5 +41,5 @@ def test_use_case_can_manage_generic_exception_from_process_request():
     response = use_case.execute(mock.Mock)
 
     assert not response
-    assert response.type == response_object.ResponseFailure.SYSTEM_ERROR
-    assert response.message == 'TestException: somemessage'
+    assert response.type == errors.Error.SYSTEM_ERROR
+    assert response.value == {'TestException: somemessage'}

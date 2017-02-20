@@ -40,5 +40,5 @@ def test_build_book_list_request_object_from_dict_with_filters():
 def test_build_book_list_request_object_from_dict_with_invalid_filters():
     req = books.BookListRequestObject.from_dict({'filters': 5})
     assert req.has_errors()
-    assert req.errors[0]['parameter'] == 'filters'
+    assert 'filters' in req.errors.keys()
     assert bool(req) is False
