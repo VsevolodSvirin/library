@@ -7,8 +7,8 @@ from repo.DjangoORM.readers import DjangoORMReaderRepository
 from serializers.readers import ReaderEncoder
 from shared import errors
 from shared import response_object as res
-from use_cases.readers import ReaderAddUseCase
-from use_cases.request_objects.readers import ReaderAddRequestObject
+from use_cases.readers import ReaderAddUseCase, ReaderListUseCase
+from use_cases.request_objects.readers import ReaderAddRequestObject, ReaderListRequestObject
 
 STATUS_CODES = {
     res.ResponseSuccess.SUCCESS: 200,
@@ -32,3 +32,21 @@ def readers_list(request):
         response = use_case.execute(request_object)
         return HttpResponse(content=json.dumps(response.value, cls=ReaderEncoder), content_type='application/json',
                             status=status_codes[response.type])
+
+    qrystr_params = {
+        'filters': {},
+    }
+
+    for arg, values in request.GET.items():
+        if arg.startswith('filter_'):
+            qrystr_params['filters'][arg.replace('filter_', '')] = values
+
+    request_object = ReaderListRequestObject.from_dict(qrystr_params)
+
+    repo = DjangoORMReaderRepository()
+    use_case = ReaderListUseCase(repo)
+
+    response = use_case.execute(request_object)
+
+    return HttpResponse(json.dumps(response.value, cls=ReaderEncoder), content_type='application/json',
+                        status=STATUS_CODES[response.type])
