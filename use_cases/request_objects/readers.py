@@ -3,6 +3,7 @@ import datetime
 
 from voluptuous import Schema, Required, Any, Match, REMOVE_EXTRA, All, Range, Length, MultipleInvalid, Datetime
 
+from domains.reader import Reader
 from shared.request_object import ValidRequestObject, InvalidRequestObject
 
 
@@ -14,8 +15,18 @@ class ReaderListRequestObject(ValidRequestObject):
     def from_dict(cls, adict):
         invalid_req = InvalidRequestObject()
 
-        if 'filters' in adict and not isinstance(adict['filters'], collections.Mapping):
-            invalid_req.add_error('filters', 'Is not iterable')
+        if 'filters' in adict:
+            if not isinstance(adict['filters'], collections.Mapping):
+                invalid_req.add_error('filters', 'Is not iterable')
+            else:
+                for key in adict['filters'].keys():
+                    if 'reg_date__' in key:
+                        key, operator = key.split('__')
+                        good_operators = ('gt', 'lt')
+                        if operator not in good_operators:
+                            invalid_req.add_error(operator, 'no such comparison operator')
+                    if key not in Reader.__slots__:
+                        invalid_req.add_error(key, 'no such parameter')
 
         if invalid_req.has_errors():
             return invalid_req
