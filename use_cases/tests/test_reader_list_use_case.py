@@ -47,9 +47,8 @@ def test_reader_list_with_filters(domain_readers):
 
     response_object = reader_list_use_case.execute(request_object)
 
-    assert bool(response_object) is True
-    repo.list.assert_called_with(filters=qry_filters)
-    assert response_object.value == domain_readers
+    assert bool(response_object) is False
+    assert response_object.value == {'a': ['no such parameter']}
 
 
 def test_reader_list_handles_generic_error():

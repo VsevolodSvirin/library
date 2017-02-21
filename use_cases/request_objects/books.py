@@ -15,19 +15,17 @@ class BookListRequestObject(ValidRequestObject):
     def from_dict(cls, adict):
         invalid_req = InvalidRequestObject()
 
-        if 'filters' in adict :
+        if 'filters' in adict:
             if not isinstance(adict['filters'], collections.Mapping):
                 invalid_req.add_error('filters', 'Is not iterable')
             else:
                 for key in adict['filters'].keys():
                     if 'year__' in key:
-                        key_name, operator = key.split('__')
+                        key, operator = key.split('__')
                         good_operators = ('gt', 'lt')
                         if operator not in good_operators:
                             invalid_req.add_error(operator, 'no such comparison operator')
-                    else:
-                        key_name = key
-                    if key_name not in Book.__slots__:
+                    if key not in Book.__slots__:
                         invalid_req.add_error(key, 'no such parameter')
 
         if invalid_req.has_errors():
