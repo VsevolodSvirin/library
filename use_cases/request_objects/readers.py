@@ -19,14 +19,20 @@ class ReaderListRequestObject(ValidRequestObject):
             if not isinstance(adict['filters'], collections.Mapping):
                 invalid_req.add_error('filters', 'Is not iterable')
             else:
+                good_operators = ('eq',)
                 for key in adict['filters'].keys():
-                    if 'reg_date__' in key:
-                        key, operator = key.split('__')
-                        good_operators = ('gt', 'lt')
-                        if operator not in good_operators:
-                            invalid_req.add_error(operator, 'no such comparison operator')
-                    if key not in Reader.__slots__:
-                        invalid_req.add_error(key, 'no such parameter')
+                    try:
+                        field, operator = key.split('__')
+                        if field == 'reg_date':
+                            if operator not in ('eq', 'gt', 'lt'):
+                                invalid_req.add_error(field, 'no such comparison operator %s' % operator)
+                        else:
+                            if operator not in good_operators:
+                                invalid_req.add_error(field, 'no such comparison operator %s' % operator)
+                        if field not in Reader.__slots__:
+                            invalid_req.add_error(field, 'no such field')
+                    except ValueError:
+                        invalid_req.add_error(key, 'invalid filter')
 
         if invalid_req.has_errors():
             return invalid_req

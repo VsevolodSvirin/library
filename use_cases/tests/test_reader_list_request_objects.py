@@ -61,7 +61,7 @@ def test_build_book_list_request_object_from_dict_with_filtering_tags_and_year()
 def test_build_book_list_request_object_from_dict_with_filtering_tags_and_bad_parameter():
     req = readers.ReaderListRequestObject.from_dict({'filters': {'full_name__gt': 'VS'}})
     assert req.has_errors()
-    assert 'full_name__gt' in req.errors.keys()
+    assert 'full_name' in req.errors.keys()
     assert bool(req) is False
 
 
@@ -69,5 +69,5 @@ def test_build_book_list_request_object_from_dict_with__bad_filtering_tags():
     req = readers.ReaderListRequestObject.from_dict(
         {'filters': {'reg_date__in': [datetime.date(2010, 1, 1), datetime.date(2015, 1, 1)]}})
     assert req.has_errors()
-    assert 'in' in req.errors.keys()
+    assert 'reg_date' in req.errors.keys()
     assert bool(req) is False

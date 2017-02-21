@@ -19,5 +19,7 @@ class Reader(object):
 
         return reader
 
+    def __eq__(self, other):
+        return self.code == other.code and self.full_name == other.full_name and self.reg_date == other.reg_date
 
 DomainModel.register(Reader)

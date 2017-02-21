@@ -50,7 +50,7 @@ def test_book_list_with_filters(domain_books):
     response_object = book_list_use_case.execute(request_object)
 
     assert bool(response_object) is False
-    assert response_object.value == {'a': ['no such parameter']}
+    assert response_object.value == {'a': ['invalid filter']}
 
 
 def test_book_list_handles_generic_error():

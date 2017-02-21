@@ -44,6 +44,7 @@ class DjangoORMBookRepository(object):
         if filters is None:
             books = Book.objects.all()
         else:
+            filters = {key.replace('__eq', ''): value for key, value in filters.items()}
             books = Book.objects.filter(**filters)
 
         return [cls._convert_to_domain(book) for book in books]
