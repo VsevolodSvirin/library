@@ -117,3 +117,20 @@ class BookListViewTestCase(TestCase):
 
         response = self.c.get(reverse('books_list'), {})
         self.assertEqual(response.status_code, 500)
+
+    @mock.patch('Django.books.views.BookListUseCase')
+    def test_request_object_initialisation_and_use_with_filters(self, mocked_use_case):
+        mocked_use_case().execute.return_value = ro.ResponseSuccess()
+
+        internal_request_object = mock.Mock()
+
+        request_object_class = 'Django.books.views.BookListRequestObject'
+        with mock.patch(request_object_class) as mock_request_object:
+            mock_request_object.from_dict.return_value = internal_request_object
+            self.c.get('/books?filter_param1=value1&filter_param2=value2')
+
+        mock_request_object.from_dict.assert_called_with(
+            {'filters': {'param1': 'value1', 'param2': 'value2'}}
+        )
+        mocked_use_case().execute.assert_called_with(internal_request_object)
+

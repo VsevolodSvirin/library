@@ -1,8 +1,9 @@
 import collections
 import datetime
 
-from voluptuous import Schema, Required, All, Length, Range, REMOVE_EXTRA, MultipleInvalid, Any, Match
+from voluptuous import Schema, Required, All, Length, Range, REMOVE_EXTRA, MultipleInvalid, Any, Datetime
 
+from domains.book import Book
 from shared.request_object import ValidRequestObject, InvalidRequestObject
 
 
@@ -14,8 +15,20 @@ class BookListRequestObject(ValidRequestObject):
     def from_dict(cls, adict):
         invalid_req = InvalidRequestObject()
 
-        if 'filters' in adict and not isinstance(adict['filters'], collections.Mapping):
-            invalid_req.add_error('filters', 'Is not iterable')
+        if 'filters' in adict :
+            if not isinstance(adict['filters'], collections.Mapping):
+                invalid_req.add_error('filters', 'Is not iterable')
+            else:
+                for key in adict['filters'].keys():
+                    if 'year__' in key:
+                        key_name, operator = key.split('__')
+                        good_operators = ('gt', 'lt')
+                        if operator not in good_operators:
+                            invalid_req.add_error(operator, 'no such comparison operator')
+                    else:
+                        key_name = key
+                    if key_name not in Book.__slots__:
+                        invalid_req.add_error(key, 'no such parameter')
 
         if invalid_req.has_errors():
             return invalid_req
@@ -35,7 +48,7 @@ class BookAddRequestObject(ValidRequestObject):
             Required('title'): All(str, Length(min=1, max=128)),
             Required('author'): All(str, Length(min=1, max=128)),
             Required('year'):
-                Any(Match(r'^[\d]{4}$'), All(int, Range(min=1000, max=datetime.datetime.now().year))),
+                Any(Datetime('%Y'), All(int, Range(min=1000, max=datetime.datetime.now().year))),
             Required('language'): All(str, Length(min=1, max=128)),
         }, extra=REMOVE_EXTRA)
 

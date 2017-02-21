@@ -7,7 +7,7 @@ from serializers import readers
 
 
 def test_serialize_domain_reader():
-    reader = Reader('f853578c-fc0f-4e65-81b8-566c5dffa35a', full_name='VS', reg_date=datetime.date(2017, 2, 13))
+    reader = Reader(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', full_name='VS', reg_date=datetime.date(2017, 2, 13))
 
     expected_json = """
         {

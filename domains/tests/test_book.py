@@ -5,7 +5,7 @@ from domains.book import Book
 
 def test_book_model_init():
     code = uuid.uuid4()
-    book = Book(code, title='1984', author='George Orwell', year=1984,
+    book = Book(code=code, title='1984', author='George Orwell', year=1984,
                 language='English', is_available=True, reader=None)
     assert book.code == code
     assert book.title == '1984'

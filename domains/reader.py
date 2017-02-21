@@ -2,10 +2,12 @@ from shared.domain_model import DomainModel
 
 
 class Reader(object):
-    def __init__(self, code, full_name, reg_date):
-        self.code = code
-        self.full_name = full_name
-        self.reg_date = reg_date
+    __slots__ = ('code', 'full_name', 'reg_date', )
+
+    def __init__(self, **kwargs):
+        self.code = kwargs['code']
+        self.full_name = kwargs['full_name']
+        self.reg_date = kwargs['reg_date']
 
     @classmethod
     def from_dict(cls, adict):

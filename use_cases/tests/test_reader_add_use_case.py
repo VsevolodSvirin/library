@@ -15,7 +15,7 @@ def adict():
 
 def test_reader_list_without_parameters(adict):
     code = 'f853578c-fc0f-4e65-81b8-566c5dffa35a'
-    reader = Reader(code, adict['full_name'], adict['reg_date'])
+    reader = Reader(code=code, full_name=adict['full_name'], reg_date=adict['reg_date'])
     repo = mock.Mock()
     repo.create.return_value = reader
 

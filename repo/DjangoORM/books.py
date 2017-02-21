@@ -20,6 +20,7 @@ class DjangoORMBookRepository(object):
             })
         return domain_book
 
+
     @classmethod
     def create(cls, **kwargs):
         book = Book.objects.create(**kwargs)
@@ -40,9 +41,9 @@ class DjangoORMBookRepository(object):
 
     @classmethod
     def list(cls, filters=None):
-        domain_books = []
-        if not filters:
+        if filters is None:
             books = Book.objects.all()
-            domain_books = [cls._convert_to_domain(book) for book in books]
+        else:
+            books = Book.objects.filter(**filters)
 
-        return domain_books
+        return [cls._convert_to_domain(book) for book in books]
