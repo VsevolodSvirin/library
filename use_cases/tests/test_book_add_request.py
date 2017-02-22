@@ -77,5 +77,3 @@ def test_validation_error_messages(dictionaries):
     invalid_request_object.add_error(parameter='year', message=['does not match regular expression'])
     invalid_request_object.add_error(parameter='author', message=['expected str'])
     assert sorted(request_object_errors) == sorted(invalid_request_object.errors)
-
-

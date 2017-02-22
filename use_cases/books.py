@@ -17,3 +17,12 @@ class BookAddUseCase(use_case.UseCase):
     def process_request(self, request_object):
         book = self.repo.create(book=request_object.init_values)
         return response_object.ResponseSuccess(book)
+
+
+class BookDetailsUseCase(use_case.UseCase):
+    def __init__(self, repo):
+        self.repo = repo
+
+    def process_request(self, request_object):
+        book = self.repo.details(pk=request_object.pk)
+        return response_object.ResponseSuccess(book)

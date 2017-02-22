@@ -13,7 +13,7 @@ def adict():
     return parameters
 
 
-def test_book_list_without_parameters(adict):
+def test_book_addition(adict):
     code = 'f853578c-fc0f-4e65-81b8-566c5dffa35a'
     book = Book(code=code, title=adict['title'], author=adict['author'], year=adict['year'],
                 language=adict['language'], is_available=True, reader=None)

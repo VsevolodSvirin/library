@@ -134,3 +134,6 @@ class BookListViewTestCase(TestCase):
         )
         mocked_use_case().execute.assert_called_with(internal_request_object)
 
+
+class BookDetailViewTestCase(TestCase):
+    pass

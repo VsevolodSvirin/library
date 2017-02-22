@@ -5,8 +5,6 @@ import pytest
 
 from domains.book import Book
 from domains.reader import Reader
-from shared import errors
-from shared import response_object
 from use_cases import books
 from use_cases.request_objects import books as request_books
 
