@@ -6,6 +6,7 @@ from django.test import TestCase
 from Django.books.models import Book
 from domains.book import Book as DomainBook
 from repo.DjangoORM.books import DjangoORMBookRepository
+from shared import errors
 
 
 class TestException(Exception):
@@ -85,3 +86,21 @@ class BookListRepositoryTestCase(TestCase):
 
     def test_repository_list_with_filters_title(self):
         self.assertEqual(self.repo.list(filters={'title': '1984'}), [self.expected_result[0]])
+
+
+class BookDetailsRepositoryTestCase(TestCase):
+    def setUp(self):
+        self.repo = DjangoORMBookRepository()
+        self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
+                         author='George Orwell', year=1984, language='English', is_available=True, reader=None)
+
+        self.expected_book = \
+            DomainBook(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
+                       author='George Orwell', year=1984, language='English', is_available=True, reader=None)
+
+    def test_book_details(self):
+        self.assertEqual(self.repo.details({'pk': 1}), self.expected_book)
+
+    def test_book_details_with_bad_pk(self):
+        error = self.repo.details({'pk': 10**10})
+        self.assertEqual(error.message, errors.Error.build_resource_error().message)

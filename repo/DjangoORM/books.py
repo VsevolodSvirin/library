@@ -4,6 +4,7 @@ from django.db import IntegrityError
 
 from Django.books.models import Book
 from domains.book import Book as DomainBook
+from shared import errors
 
 
 class DjangoORMBookRepository(object):
@@ -17,9 +18,8 @@ class DjangoORMBookRepository(object):
                 'language': book.language,
                 'is_available': book.is_available,
                 'reader': book.reader
-            })
+        })
         return domain_book
-
 
     @classmethod
     def create(cls, **kwargs):
@@ -48,3 +48,12 @@ class DjangoORMBookRepository(object):
             books = Book.objects.filter(**filters)
 
         return [cls._convert_to_domain(book) for book in books]
+
+    @classmethod
+    def details(cls, adict):
+        try:
+            book = Book.objects.get(pk=adict.get('pk'))
+            return cls._convert_to_domain(book)
+        except Exception:
+            error = errors.Error.build_resource_error()
+            return error
