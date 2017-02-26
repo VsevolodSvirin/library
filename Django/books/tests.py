@@ -1,9 +1,10 @@
 import json
-import uuid
 from unittest import mock
 from unittest.mock import patch
 
+from django.http import QueryDict
 from django.test import Client
+from django.test import RequestFactory
 from django.test import TestCase
 from django.urls import reverse
 
@@ -32,9 +33,18 @@ class BooksAddViewTestCase(TestCase):
 
         mocked_use_case().execute.return_value = ro.ResponseSuccess(book)
 
-        response = self.c.post(reverse('books_list'), {})
+        response = self.c.post(reverse('books_list'), {
+            'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
+            'title': '1984',
+            'author': 'George Orwell',
+            'year': 1984,
+            'language': 'English',
+            'is_available': True,
+            'reader': None
+                                                       })
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)), json.loads(response.content))
+        self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)),
+                         json.loads(response.content.decode('utf-8')))
 
     @patch('Django.books.views.BookAddUseCase')
     def test_with_bad_arguments(self, mocked_use_case):
@@ -44,18 +54,18 @@ class BooksAddViewTestCase(TestCase):
         error = errors.Error.build_from_invalid_request_object(invalid_request)
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
-        response = self.c.post(reverse('books_list'), {})
+        response = self.c.post(reverse('books_list'), error.value)
         self.assertEqual(response.status_code, 400)
 
         response_error_data = {'year': ['invalid year'], 'title': ['invalid title']}
-        self.assertEqual(json.loads(response.content), response_error_data)
+        self.assertEqual(json.loads(response.content.decode('utf-8')), response_error_data)
 
     @patch('Django.books.views.BookAddUseCase')
     def test_with_resource_error(self, mocked_use_case):
         error = errors.Error.build_resource_error()
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
-        response = self.c.post(reverse('books_list'), {})
+        response = self.c.post(reverse('books_list'), error.value)
         self.assertEqual(response.status_code, 404)
 
     @patch('Django.books.views.BookAddUseCase')
@@ -63,7 +73,7 @@ class BooksAddViewTestCase(TestCase):
         error = errors.Error.build_system_error(Exception('database failure',))
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
-        response = self.c.post(reverse('books_list'), {})
+        response = self.c.post(reverse('books_list'), error.value)
         self.assertEqual(response.status_code, 500)
 
 
@@ -87,7 +97,8 @@ class BookListViewTestCase(TestCase):
         response = self.c.get(reverse('books_list'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)), json.loads(response.content))
+        self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)),
+                         json.loads(response.content.decode('utf-8')))
 
     @patch('Django.books.views.BookListUseCase')
     def test_with_bad_arguments(self, mocked_use_case):
@@ -100,7 +111,7 @@ class BookListViewTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
 
         response_error_data = {'filter': ['bad filter']}
-        self.assertEqual(json.loads(response.content), response_error_data)
+        self.assertEqual(json.loads(response.content.decode('utf-8')), response_error_data)
 
     @patch('Django.books.views.BookListUseCase')
     def test_with_resource_error(self, mocked_use_case):
@@ -134,3 +145,34 @@ class BookListViewTestCase(TestCase):
         )
         mocked_use_case().execute.assert_called_with(internal_request_object)
 
+
+class RequestStandartizerTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+        self.factory = RequestFactory()
+
+    def test_with_post_data(self):
+        initial_data = {
+            'title': '1984',
+            'author': 'George Orwell',
+            'year': 1984,
+            'language': 'English',
+        }
+        request = self.factory.post(reverse('books_list'), initial_data)
+        qdict = QueryDict(mutable=True)
+        qdict.update(initial_data)
+        self.assertEqual(request.POST.dict(), qdict.dict())
+
+    def test_with_body_data(self):
+        initial_data = """
+            {
+                "title": "1984",
+                "author": "George Orwell",
+                "year": 1984,
+                "language": "English",
+            }
+        """
+        request = self.factory.post(reverse('books_list'), initial_data)
+        qdict = QueryDict(mutable=True)
+        qdict.update(initial_data)
+        self.assertEqual(request.POST.dict(), qdict.dict())

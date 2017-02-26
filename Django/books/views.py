@@ -3,6 +3,7 @@ import json
 
 from django.http import HttpResponse
 
+from Django.shared.request_handlers import request_standartizer
 from repo.DjangoORM.books import DjangoORMBookRepository
 from serializers.books import BookEncoder
 from shared import errors
@@ -18,6 +19,7 @@ STATUS_CODES = {
 }
 
 
+@request_standartizer
 def books_list(request):
     if request.method == 'POST':
         status_codes = copy.deepcopy(STATUS_CODES)

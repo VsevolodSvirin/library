@@ -30,7 +30,8 @@ class ReadersAddViewTestCase(TestCase):
 
         response = self.c.post(reverse('readers_list'), {})
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(json.loads(json.dumps(reader, cls=readers.ReaderEncoder)), json.loads(response.content))
+        self.assertEqual(json.loads(json.dumps(reader, cls=readers.ReaderEncoder)),
+                         json.loads(response.content.decode('utf-8')))
 
     @patch('Django.readers.views.ReaderAddUseCase')
     def test_with_bad_arguments(self, mocked_use_case):
@@ -44,7 +45,7 @@ class ReadersAddViewTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
 
         response_error_data = {'full_name': ['invalid name'], 'reg_date': ['invalid date']}
-        self.assertEqual(json.loads(response.content), response_error_data)
+        self.assertEqual(json.loads(response.content.decode('utf-8')), response_error_data)
 
     @patch('Django.readers.views.ReaderAddUseCase')
     def test_with_resource_error(self, mocked_use_case):
@@ -79,7 +80,8 @@ class ReaderListViewTestCase(TestCase):
         response = self.c.get(reverse('readers_list'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(json.loads(json.dumps(reader, cls=readers.ReaderEncoder)), json.loads(response.content))
+        self.assertEqual(json.loads(json.dumps(reader, cls=readers.ReaderEncoder)),
+                         json.loads(response.content.decode('utf-8')))
 
     @patch('Django.readers.views.ReaderListUseCase')
     def test_with_bad_arguments(self, mocked_use_case):
@@ -92,7 +94,7 @@ class ReaderListViewTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
 
         response_error_data = {'filter': ['bad filter']}
-        self.assertEqual(json.loads(response.content), response_error_data)
+        self.assertEqual(json.loads(response.content.decode('utf-8')), response_error_data)
 
     @patch('Django.readers.views.ReaderListUseCase')
     def test_with_resource_error(self, mocked_use_case):

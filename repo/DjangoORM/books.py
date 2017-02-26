@@ -20,7 +20,6 @@ class DjangoORMBookRepository(object):
             })
         return domain_book
 
-
     @classmethod
     def create(cls, **kwargs):
         book = Book.objects.create(**kwargs)
@@ -30,7 +29,7 @@ class DjangoORMBookRepository(object):
     def from_dict(cls, adict):
         while True:
             try:
-                code = uuid.uuid4()
+                code = str(uuid.uuid4())
                 book = cls.create(code=code, is_available=True, **adict)
                 break
             except IntegrityError as e:

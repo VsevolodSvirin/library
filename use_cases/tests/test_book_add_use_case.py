@@ -18,7 +18,7 @@ def test_book_list_without_parameters(adict):
     book = Book(code=code, title=adict['title'], author=adict['author'], year=adict['year'],
                 language=adict['language'], is_available=True, reader=None)
     repo = mock.Mock()
-    repo.create.return_value = book
+    repo.from_dict.return_value = book
 
     book_list_add_case = books.BookAddUseCase(repo)
     request_object = request_books.BookAddRequestObject.from_dict(adict)
@@ -26,5 +26,5 @@ def test_book_list_without_parameters(adict):
     response_object = book_list_add_case.execute(request_object)
     assert bool(response_object) is True
 
-    repo.create.assert_called_with(book=adict)
+    repo.from_dict.assert_called_with(adict)
     assert response_object.value == book
