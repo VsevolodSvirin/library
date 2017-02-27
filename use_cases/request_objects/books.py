@@ -121,3 +121,31 @@ class BookDeleteRequestObject(ValidRequestObject):
             return invalid_req
 
         return BookDeleteRequestObject(pk=int(adict.get('pk')))
+
+
+class BookUpdateRequestObject(ValidRequestObject):
+    def __init__(self, pk, patch):
+        self.pk = pk
+        self.patch = patch
+
+    @classmethod
+    def from_dict(cls, adict):
+        invalid_req = InvalidRequestObject()
+
+        if not bool(adict):
+            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
+        elif 'pk' not in adict.keys():
+            invalid_req.add_error('primary key', 'has to pass primary key')
+        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
+            invalid_req.add_error('primary key', 'has to be integer')
+        elif 'patch' not in adict.keys():
+            invalid_req.add_error('patch', 'has to pass patch instructions')
+        elif not isinstance(adict.get('patch'), dict):
+            invalid_req.add_error('patch', 'has to be dictionary with patch instructions')
+        elif not set(adict.get('patch').keys()) < set(Book.__slots__):
+            invalid_req.add_error('patch', 'parameters in patch are wrong')
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        return BookUpdateRequestObject(pk=int(adict.get('pk')), patch=adict.get('patch'))
