@@ -102,5 +102,19 @@ class BookDetailsRepositoryTestCase(TestCase):
         self.assertEqual(self.repo.details(pk=1), self.expected_book)
 
     def test_book_details_with_bad_pk(self):
-        error = self.repo.details({'pk': 10**10})
+        error = self.repo.details(pk=10**10)
+        self.assertEqual(error.message, errors.Error.build_resource_error().message)
+
+
+class BookDeleteRepositoryTestCase(TestCase):
+    def setUp(self):
+        self.repo = DjangoORMBookRepository()
+        self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
+                         author='George Orwell', year=1984, language='English', is_available=True, reader=None)
+
+    def test_book_delete(self):
+        self.assertEqual(self.repo.delete(pk=1), None)
+
+    def test_book_delete_with_bad_pk(self):
+        error = self.repo.delete(pk=10**10)
         self.assertEqual(error.message, errors.Error.build_resource_error().message)
