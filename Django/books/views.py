@@ -55,6 +55,9 @@ def books_list(request):
 
 
 def book_detail(request, pk):
+    # if request.method == 'DELETE':
+    #     status_codes = copy.deepcopy(STATUS_CODES)
+    #     status_codes[res.ResponseSuccess.SUCCESS] = 204
 
     request_object = BookDetailsRequestObject.from_dict({'pk': pk})
 

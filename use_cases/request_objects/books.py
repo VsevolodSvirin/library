@@ -7,6 +7,14 @@ from domains.book import Book
 from shared.request_object import ValidRequestObject, InvalidRequestObject
 
 
+def check_if_int(param):
+    try:
+        int(param)
+        return True
+    except Exception:
+        return False
+
+
 class BookListRequestObject(ValidRequestObject):
     def __init__(self, filters=None):
         self.filters = filters
@@ -78,12 +86,25 @@ class BookDetailsRequestObject(ValidRequestObject):
         self.pk = pk
 
     @classmethod
-    def _check_if_int(cls, param):
-        try:
-            int(param)
-            return True
-        except Exception:
-            return False
+    def from_dict(cls, adict):
+        invalid_req = InvalidRequestObject()
+
+        if not bool(adict):
+            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
+        elif 'pk' not in adict.keys():
+            invalid_req.add_error('primary key', 'has to pass primary key')
+        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
+            invalid_req.add_error('primary key', 'has to be integer')
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        return BookDetailsRequestObject(pk=int(adict.get('pk')))
+
+
+class BookDeleteRequestObject(ValidRequestObject):
+    def __init__(self, pk):
+        self.pk = pk
 
     @classmethod
     def from_dict(cls, adict):
@@ -93,10 +114,10 @@ class BookDetailsRequestObject(ValidRequestObject):
             invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
         elif 'pk' not in adict.keys():
             invalid_req.add_error('primary key', 'has to pass primary key')
-        elif not isinstance(adict.get('pk'), int) and not cls._check_if_int(adict.get('pk')):
+        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
             invalid_req.add_error('primary key', 'has to be integer')
 
         if invalid_req.has_errors():
             return invalid_req
 
-        return BookDetailsRequestObject(pk=int(adict.get('pk')))
+        return BookDeleteRequestObject(pk=int(adict.get('pk')))

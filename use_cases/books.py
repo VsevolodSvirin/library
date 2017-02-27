@@ -26,3 +26,12 @@ class BookDetailsUseCase(use_case.UseCase):
     def process_request(self, request_object):
         book = self.repo.details(pk=request_object.pk)
         return response_object.ResponseSuccess(book)
+
+
+class BookDeleteUseCase(use_case.UseCase):
+    def __init__(self, repo):
+        self.repo = repo
+
+    def process_request(self, request_object):
+        self.repo.delete(pk=request_object.pk)
+        return response_object.ResponseSuccess()

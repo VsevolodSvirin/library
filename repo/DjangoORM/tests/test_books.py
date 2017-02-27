@@ -99,7 +99,7 @@ class BookDetailsRepositoryTestCase(TestCase):
                        author='George Orwell', year=1984, language='English', is_available=True, reader=None)
 
     def test_book_details(self):
-        self.assertEqual(self.repo.details({'pk': 1}), self.expected_book)
+        self.assertEqual(self.repo.details(pk=1), self.expected_book)
 
     def test_book_details_with_bad_pk(self):
         error = self.repo.details({'pk': 10**10})
