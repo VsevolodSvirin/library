@@ -50,9 +50,9 @@ class DjangoORMBookRepository(object):
         return [cls._convert_to_domain(book) for book in books]
 
     @classmethod
-    def details(cls, adict):
+    def details(cls, pk):
         try:
-            book = Book.objects.get(pk=adict.get('pk'))
+            book = Book.objects.get(pk=pk)
             return cls._convert_to_domain(book)
         except Exception:
             error = errors.Error.build_resource_error()

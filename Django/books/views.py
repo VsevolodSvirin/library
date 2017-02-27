@@ -8,8 +8,8 @@ from repo.DjangoORM.books import DjangoORMBookRepository
 from serializers.books import BookEncoder
 from shared import errors
 from shared import response_object as res
-from use_cases.books import BookAddUseCase, BookListUseCase
-from use_cases.request_objects.books import BookAddRequestObject, BookListRequestObject
+from use_cases.books import BookAddUseCase, BookListUseCase, BookDetailsUseCase
+from use_cases.request_objects.books import BookAddRequestObject, BookListRequestObject, BookDetailsRequestObject
 
 STATUS_CODES = {
     res.ResponseSuccess.SUCCESS: 200,
@@ -47,6 +47,19 @@ def books_list(request):
 
     repo = DjangoORMBookRepository()
     use_case = BookListUseCase(repo)
+
+    response = use_case.execute(request_object)
+
+    return HttpResponse(json.dumps(response.value, cls=BookEncoder), content_type='application/json',
+                        status=STATUS_CODES[response.type])
+
+
+def book_detail(request, pk):
+
+    request_object = BookDetailsRequestObject.from_dict({'pk': pk})
+
+    repo = DjangoORMBookRepository()
+    use_case = BookDetailsUseCase(repo)
 
     response = use_case.execute(request_object)
 
