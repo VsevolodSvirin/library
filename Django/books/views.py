@@ -3,13 +3,14 @@ import json
 
 from django.http import HttpResponse
 
-from Django.shared.request_handlers import request_standartizer
+from Django.django_shared.request_handlers import request_standartizer
 from repo.DjangoORM.books import DjangoORMBookRepository
 from serializers.books import BookEncoder
 from shared import errors
 from shared import response_object as res
-from use_cases.books import BookAddUseCase, BookListUseCase, BookDetailsUseCase
-from use_cases.request_objects.books import BookAddRequestObject, BookListRequestObject, BookDetailsRequestObject
+from use_cases.books import BookAddUseCase, BookListUseCase, BookDetailsUseCase, BookDeleteUseCase
+from use_cases.request_objects.books import BookAddRequestObject, BookListRequestObject, BookDetailsRequestObject, \
+    BookDeleteRequestObject
 
 STATUS_CODES = {
     res.ResponseSuccess.SUCCESS: 200,
@@ -55,9 +56,18 @@ def books_list(request):
 
 
 def book_detail(request, pk):
-    # if request.method == 'DELETE':
-    #     status_codes = copy.deepcopy(STATUS_CODES)
-    #     status_codes[res.ResponseSuccess.SUCCESS] = 204
+    if request.method == 'DELETE':
+        status_codes = copy.deepcopy(STATUS_CODES)
+        status_codes[res.ResponseSuccess.SUCCESS] = 204
+
+        request_object = BookDeleteRequestObject.from_dict({'pk': pk})
+
+        repo = DjangoORMBookRepository()
+        use_case = BookDeleteUseCase(repo)
+
+        response = use_case.execute(request_object)
+        return HttpResponse(content=json.dumps(response.value, cls=BookEncoder), content_type='application/json',
+                            status=status_codes[response.type])
 
     request_object = BookDetailsRequestObject.from_dict({'pk': pk})
 

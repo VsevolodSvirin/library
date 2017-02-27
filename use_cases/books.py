@@ -1,3 +1,4 @@
+from shared import errors
 from shared import response_object, use_case
 
 
@@ -24,8 +25,11 @@ class BookDetailsUseCase(use_case.UseCase):
         self.repo = repo
 
     def process_request(self, request_object):
-        book = self.repo.details(pk=request_object.pk)
-        return response_object.ResponseSuccess(book)
+        resp = self.repo.details(pk=request_object.pk)
+        if isinstance(resp, errors.Error):
+            return response_object.ResponseFailure.from_error(resp)
+        else:
+            return response_object.ResponseSuccess(resp)
 
 
 class BookDeleteUseCase(use_case.UseCase):
@@ -33,5 +37,8 @@ class BookDeleteUseCase(use_case.UseCase):
         self.repo = repo
 
     def process_request(self, request_object):
-        self.repo.delete(pk=request_object.pk)
-        return response_object.ResponseSuccess()
+        resp = self.repo.delete(pk=request_object.pk)
+        if isinstance(resp, errors.Error):
+            return response_object.ResponseFailure.from_error(resp)
+        else:
+            return response_object.ResponseSuccess()

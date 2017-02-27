@@ -2,9 +2,7 @@ import json
 from unittest import mock
 from unittest.mock import patch
 
-from django.http import QueryDict
 from django.test import Client
-from django.test import RequestFactory
 from django.test import TestCase
 from django.urls import reverse
 
@@ -41,7 +39,7 @@ class BooksAddViewTestCase(TestCase):
             'language': 'English',
             'is_available': True,
             'reader': None
-                                                       })
+        })
         self.assertEqual(response.status_code, 201)
         self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)),
                          json.loads(response.content.decode('utf-8')))
@@ -70,7 +68,7 @@ class BooksAddViewTestCase(TestCase):
 
     @patch('Django.books.views.BookAddUseCase')
     def test_with_system_error(self, mocked_use_case):
-        error = errors.Error.build_system_error(Exception('database failure',))
+        error = errors.Error.build_system_error(Exception('database failure', ))
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.post(reverse('books_list'), error.value)
@@ -81,7 +79,7 @@ class BookListViewTestCase(TestCase):
     def setUp(self):
         self.c = Client()
 
-    @mock.patch('Django.books.views.BookListUseCase')
+    @patch('Django.books.views.BookListUseCase')
     def test_repository_list_without_parameters(self, mocked_use_case):
         book = Book.from_dict({
             'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
@@ -123,13 +121,13 @@ class BookListViewTestCase(TestCase):
 
     @patch('Django.books.views.BookListUseCase')
     def test_get_failed_response(self, mock_use_case):
-        error = errors.Error.build_system_error(Exception('database failure',))
+        error = errors.Error.build_system_error(Exception('database failure', ))
         mock_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.get(reverse('books_list'), {})
         self.assertEqual(response.status_code, 500)
 
-    @mock.patch('Django.books.views.BookListUseCase')
+    @patch('Django.books.views.BookListUseCase')
     def test_request_object_initialisation_and_use_with_filters(self, mocked_use_case):
         mocked_use_case().execute.return_value = ro.ResponseSuccess()
 
@@ -146,32 +144,40 @@ class BookListViewTestCase(TestCase):
         mocked_use_case().execute.assert_called_with(internal_request_object)
 
 
-class RequestStandartizerTestCase(TestCase):
+class BookDetailsViewTestCase(TestCase):
     def setUp(self):
         self.c = Client()
-        self.factory = RequestFactory()
 
-    def test_with_post_data(self):
-        initial_data = {
+    @patch('Django.books.views.BookDetailsUseCase')
+    def test_repository_details(self, mocked_use_case):
+        book = Book.from_dict({
+            'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
             'title': '1984',
             'author': 'George Orwell',
             'year': 1984,
             'language': 'English',
-        }
-        request = self.factory.post(reverse('books_list'), initial_data)
-        qdict = QueryDict(mutable=True)
-        qdict.update(initial_data)
-        self.assertEqual(request.POST.urlencode(), qdict.urlencode())
+            'is_available': True,
+            'reader': None
+        })
 
-    def test_with_body_data(self):
-        initial_data = """
-            {
-                "title": "1984",
-                "author": "George Orwell",
-                "year": 1984,
-                "language": "English"
-            }
-        """
-        request = self.factory.post(reverse('books_list'), content_type='application/json', data=initial_data)
-        self.assertEqual(request.POST.urlencode(), '')
-        self.assertEqual(request.body.decode('utf-8'), initial_data)
+        mocked_use_case().execute.return_value = ro.ResponseSuccess(book)
+        response = self.c.get('/books/1/')
+        # response = self.c.get(reverse('books_details'), {'pk': 1})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)),
+                         json.loads(response.content.decode('utf-8')))
+
+
+class BookDeleteViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @patch('Django.books.views.BookDeleteUseCase')
+    def test_repository_details(self, mocked_use_case):
+
+        mocked_use_case().execute.return_value = ro.ResponseSuccess()
+        response = self.c.delete('/books/1/')
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual('', response.content.decode('utf-8'))
