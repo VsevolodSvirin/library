@@ -30,7 +30,7 @@ class DjangoORMBookRepository(object):
     def from_dict(cls, adict):
         while True:
             try:
-                code = uuid.uuid4()
+                code = str(uuid.uuid4())
                 book = cls.create(code=code, is_available=True, **adict)
                 break
             except IntegrityError as e:
