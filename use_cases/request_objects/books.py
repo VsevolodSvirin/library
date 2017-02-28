@@ -197,3 +197,24 @@ class BookReturnRequestObject(ValidRequestObject):
             return invalid_req
 
         return BookReturnRequestObject(pk=int(adict.get('pk')))
+
+
+class BookStealRequestObject(ValidRequestObject):
+    def __init__(self, pk):
+        self.pk = pk
+
+    @classmethod
+    def from_dict(cls, adict):
+        invalid_req = InvalidRequestObject()
+
+        if not bool(adict):
+            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
+        elif 'pk' not in adict.keys():
+            invalid_req.add_error('primary key', 'has to pass primary key')
+        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
+            invalid_req.add_error('primary key', 'has to be integer')
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        return BookStealRequestObject(pk=int(adict.get('pk')))

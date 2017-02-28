@@ -74,7 +74,19 @@ class BookReturnUseCase(use_case.UseCase):
         self.repo = repo
 
     def process_request(self, request_object):
-        resp = self.repo.give(pk=request_object.pk)
+        resp = self.repo.return_book(pk=request_object.pk)
+        if isinstance(resp, errors.Error):
+            return response_object.ResponseFailure.from_error(resp)
+        else:
+            return response_object.ResponseSuccess(resp)
+
+
+class BookStealUseCase(use_case.UseCase):
+    def __init__(self, repo):
+        self.repo = repo
+
+    def process_request(self, request_object):
+        resp = self.repo.steal(pk=request_object.pk)
         if isinstance(resp, errors.Error):
             return response_object.ResponseFailure.from_error(resp)
         else:
