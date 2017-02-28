@@ -162,7 +162,6 @@ class BookDetailsViewTestCase(TestCase):
 
         mocked_use_case().execute.return_value = ro.ResponseSuccess(book)
         response = self.c.get('/books/1/')
-        # response = self.c.get(reverse('books_details'), {'pk': 1})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(json.dumps(book, cls=books.BookEncoder)),
@@ -175,9 +174,31 @@ class BookDeleteViewTestCase(TestCase):
 
     @patch('Django.books.views.BookDeleteUseCase')
     def test_repository_details(self, mocked_use_case):
-
         mocked_use_case().execute.return_value = ro.ResponseSuccess()
         response = self.c.delete('/books/1/')
 
         self.assertEqual(response.status_code, 204)
         self.assertEqual('', response.content.decode('utf-8'))
+
+
+class BookUpdateViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @patch('Django.books.views.BookUpdateUseCase')
+    def test_repository_details(self, mocked_use_case):
+        updated_book = Book.from_dict({'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
+                                       'title': 'Fahrenheit 451',
+                                       'author': 'Ray Bradbury',
+                                       'year': 1984,
+                                       'language': 'English',
+                                       'is_available': True,
+                                       'reader': None
+                                       })
+
+        mocked_use_case().execute.return_value = ro.ResponseSuccess(updated_book)
+        response = self.c.patch('/books/1/', {"title": "Fahrenheit 451", "author": "Ray Bradbury"})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(json.dumps(updated_book, cls=books.BookEncoder)),
+                         json.loads(response.content.decode('utf-8')))

@@ -124,7 +124,7 @@ class BookDeleteRequestObject(ValidRequestObject):
 
 
 class BookUpdateRequestObject(ValidRequestObject):
-    def __init__(self, pk, patch):
+    def __init__(self, pk, patch=None):
         self.pk = pk
         self.patch = patch
 
@@ -140,12 +140,12 @@ class BookUpdateRequestObject(ValidRequestObject):
             invalid_req.add_error('primary key', 'has to be integer')
         elif 'patch' not in adict.keys():
             invalid_req.add_error('patch', 'has to pass patch instructions')
-        elif not isinstance(adict.get('patch'), dict):
-            invalid_req.add_error('patch', 'has to be dictionary with patch instructions')
+        elif not isinstance(adict.get('patch'), collections.Mapping):
+            invalid_req.add_error('patch', 'is not iterable')
         elif not set(adict.get('patch').keys()) < set(Book.__slots__):
             invalid_req.add_error('patch', 'parameters in patch are wrong')
 
         if invalid_req.has_errors():
             return invalid_req
 
-        return BookUpdateRequestObject(pk=int(adict.get('pk')), patch=adict.get('patch'))
+        return BookUpdateRequestObject(pk=int(adict.get('pk')), patch=adict.get('patch', None))
