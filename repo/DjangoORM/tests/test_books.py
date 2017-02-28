@@ -102,7 +102,7 @@ class BookDetailsRepositoryTestCase(TestCase):
         self.assertEqual(self.repo.details(pk=1), self.expected_book)
 
     def test_book_details_with_bad_pk(self):
-        error = self.repo.details(pk=10**10)
+        error = self.repo.details(pk=10 ** 10)
         self.assertEqual(error.message, errors.Error.build_resource_error().message)
 
 
@@ -116,5 +116,24 @@ class BookDeleteRepositoryTestCase(TestCase):
         self.assertEqual(self.repo.delete(pk=1), None)
 
     def test_book_delete_with_bad_pk(self):
-        error = self.repo.delete(pk=10**10)
+        error = self.repo.delete(pk=10 ** 10)
+        self.assertEqual(error.message, errors.Error.build_resource_error().message)
+
+
+class BookUpdateRepositoryTestCase(TestCase):
+    def setUp(self):
+        self.repo = DjangoORMBookRepository()
+        self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
+                         author='George Orwell', year=1984, language='English', is_available=True, reader=None)
+        self.updated_book = \
+            DomainBook(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='Fahrenheit 451',
+                       author='Ray Bradbury', year=1984, language='English', is_available=True, reader=None)
+
+    def test_book_update(self):
+        self.assertEqual(self.repo.update(
+            pk=1, patch={'title': 'Fahrenheit 451', 'author': 'Ray Bradbury'}), self.updated_book
+        )
+
+    def test_book_update_with_bad_pk(self):
+        error = self.repo.update(pk=10 ** 10, patch={'title': 'Fahrenheit 451', 'author': 'Ray Bradbury'})
         self.assertEqual(error.message, errors.Error.build_resource_error().message)
