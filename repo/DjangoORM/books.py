@@ -5,6 +5,7 @@ from django.db import IntegrityError
 from Django.books.models import Book
 from domains.book import Book as DomainBook
 from shared import errors
+from shared.request_object import InvalidRequestObject
 
 
 class DjangoORMBookRepository(object):
@@ -71,6 +72,48 @@ class DjangoORMBookRepository(object):
     def update(cls, pk, patch):
         try:
             Book.objects.filter(pk=pk).update(**patch)
+            book = Book.objects.get(pk=pk)
+            return cls._convert_to_domain(book)
+        except Exception:
+            error = errors.Error.build_resource_error()
+            return error
+
+    @classmethod
+    def give(cls, pk, reader):
+        try:
+            if Book.objects.get(pk=pk).is_available:
+                Book.objects.filter(pk=pk).update(is_available=False, reader=reader)
+                book = Book.objects.get(pk=pk)
+                return cls._convert_to_domain(book)
+            else:
+                inv_req = InvalidRequestObject()
+                inv_req.add_error('primary key', 'this book is not available')
+                error = errors.Error.build_from_invalid_request_object(inv_req)
+                return error
+        except Exception:
+            error = errors.Error.build_resource_error()
+            return error
+
+    @classmethod
+    def return_book(cls, pk):
+        try:
+            if not Book.objects.get(pk=pk).is_available:
+                Book.objects.filter(pk=pk).update(is_available=True, reader=None)
+                book = Book.objects.get(pk=pk)
+                return cls._convert_to_domain(book)
+            else:
+                inv_req = InvalidRequestObject()
+                inv_req.add_error('primary key', 'this book is in the library')
+                error = errors.Error.build_from_invalid_request_object(inv_req)
+                return error
+        except Exception:
+            error = errors.Error.build_resource_error()
+            return error
+
+    @classmethod
+    def steal(cls, pk):
+        try:
+            Book.objects.filter(pk=pk).update(is_available=False, reader=None)
             book = Book.objects.get(pk=pk)
             return cls._convert_to_domain(book)
         except Exception:
