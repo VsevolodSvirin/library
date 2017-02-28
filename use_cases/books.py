@@ -54,3 +54,28 @@ class BookUpdateUseCase(use_case.UseCase):
             return response_object.ResponseFailure.from_error(resp)
         else:
             return response_object.ResponseSuccess(resp)
+
+
+class BookGiveUseCase(use_case.UseCase):
+    def __init__(self, repo, reader):
+        self.repo = repo
+        self.reader = reader
+
+    def process_request(self, request_object):
+        resp = self.repo.give(pk=request_object.pk, reader=request_object.reader)
+        if isinstance(resp, errors.Error):
+            return response_object.ResponseFailure.from_error(resp)
+        else:
+            return response_object.ResponseSuccess(resp)
+
+
+class BookReturnUseCase(use_case.UseCase):
+    def __init__(self, repo):
+        self.repo = repo
+
+    def process_request(self, request_object):
+        resp = self.repo.give(pk=request_object.pk)
+        if isinstance(resp, errors.Error):
+            return response_object.ResponseFailure.from_error(resp)
+        else:
+            return response_object.ResponseSuccess(resp)
