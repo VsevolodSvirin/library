@@ -4,6 +4,7 @@ import datetime
 from voluptuous import Schema, Required, All, Length, Range, REMOVE_EXTRA, MultipleInvalid, Any, Datetime
 
 from domains.book import Book
+from domains.reader import Reader
 from shared.request_object import ValidRequestObject, InvalidRequestObject
 
 
@@ -149,3 +150,29 @@ class BookUpdateRequestObject(ValidRequestObject):
             return invalid_req
 
         return BookUpdateRequestObject(pk=int(adict.get('pk')), patch=adict.get('patch', None))
+
+
+class BookGiveRequestObject(ValidRequestObject):
+    def __init__(self, pk, reader):
+        self.pk = pk
+        self.reader = reader
+
+    @classmethod
+    def from_dict(cls, adict):
+        invalid_req = InvalidRequestObject()
+
+        if not bool(adict):
+            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
+        elif 'pk' not in adict.keys():
+            invalid_req.add_error('primary key', 'has to pass primary key')
+        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
+            invalid_req.add_error('primary key', 'has to be integer')
+        elif 'reader' not in adict.keys():
+            invalid_req.add_error('reader', 'has to pass reader')
+        elif not isinstance(adict.get('reader'), Reader):
+            invalid_req.add_error('reader', 'has to be an instance of Reader')
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        return BookGiveRequestObject(pk=int(adict.get('pk')), reader=adict.get('reader'))

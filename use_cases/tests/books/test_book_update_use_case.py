@@ -55,7 +55,7 @@ def test_book_update_with_bad_patch():
 
     response_object = book_update_use_case.execute(request_object)
     assert bool(response_object) is False
-    assert response_object.value == {'patch': ['has to be dictionary with patch instructions']}
+    assert response_object.value == {'patch': ['is not iterable']}
 
 
 def test_book_update_with_bad_patch_parameters():

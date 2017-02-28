@@ -22,7 +22,7 @@ def test_update_book_details_with_bad_patch():
     assert bool(req) is False
 
 
-def test_update_book_deatails_with_bad_patch_parameters():
+def test_update_book_details_with_bad_patch_parameters():
     req = books.BookUpdateRequestObject.from_dict({'pk': 1, 'patch': {'ololo': 'ololo'}})
     assert req.has_errors()
     assert 'patch' in req.errors
