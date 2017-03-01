@@ -71,6 +71,7 @@ class DjangoORMBookRepository(object):
     @classmethod
     def update(cls, pk, patch):
         try:
+            del patch['action']
             Book.objects.filter(pk=pk).update(**patch)
             book = Book.objects.get(pk=pk)
             return cls._convert_to_domain(book)
@@ -79,10 +80,10 @@ class DjangoORMBookRepository(object):
             return error
 
     @classmethod
-    def give(cls, pk, reader):
+    def give(cls, pk, patch):
         try:
             if Book.objects.get(pk=pk).is_available:
-                Book.objects.filter(pk=pk).update(is_available=False, reader=reader)
+                Book.objects.filter(pk=pk).update(is_available=False, reader=patch.get('reader'))
                 book = Book.objects.get(pk=pk)
                 return cls._convert_to_domain(book)
             else:
@@ -95,10 +96,10 @@ class DjangoORMBookRepository(object):
             return error
 
     @classmethod
-    def return_book(cls, pk):
+    def take(cls, pk, patch):
         try:
             if not Book.objects.get(pk=pk).is_available:
-                Book.objects.filter(pk=pk).update(is_available=True, reader=None)
+                Book.objects.filter(pk=pk).update(is_available=True, reader=patch.get('reader'))
                 book = Book.objects.get(pk=pk)
                 return cls._convert_to_domain(book)
             else:
@@ -106,16 +107,6 @@ class DjangoORMBookRepository(object):
                 inv_req.add_error('primary key', 'this book is in the library')
                 error = errors.Error.build_from_invalid_request_object(inv_req)
                 return error
-        except Exception:
-            error = errors.Error.build_resource_error()
-            return error
-
-    @classmethod
-    def steal(cls, pk):
-        try:
-            Book.objects.filter(pk=pk).update(is_available=False, reader=None)
-            book = Book.objects.get(pk=pk)
-            return cls._convert_to_domain(book)
         except Exception:
             error = errors.Error.build_resource_error()
             return error

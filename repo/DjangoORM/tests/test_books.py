@@ -184,29 +184,12 @@ class BookReturnRepositoryTestCase(TestCase):
                        author='George Orwell', year=1984, language='English', is_available=True, reader=None)
 
     def test_book_update(self):
-        self.assertEqual(self.repo.return_book(pk=2), self.updated_book)
+        self.assertEqual(self.repo.take(pk=2, reader=None), self.updated_book)
 
     def test_book_update_with_bad_pk(self):
-        error = self.repo.return_book(pk=10 ** 10)
+        error = self.repo.take(pk=10 ** 10, reader=None)
         self.assertEqual(error.message, errors.Error.build_resource_error().message)
 
     def test_return_available_book(self):
-        error = self.repo.return_book(pk=1)
+        error = self.repo.take(pk=1, reader=None)
         self.assertEqual(error.message, {'primary key': ['this book is in the library']})
-
-
-class BookStealRepositoryTestCase(TestCase):
-    def setUp(self):
-        self.repo = DjangoORMBookRepository()
-        self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
-                         author='George Orwell', year=1984, language='English', is_available=True, reader=None)
-        self.updated_book = \
-            DomainBook(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
-                       author='George Orwell', year=1984, language='English', is_available=False, reader=None)
-
-    def test_book_update(self):
-        self.assertEqual(self.repo.steal(pk=1), self.updated_book)
-
-    def test_book_update_with_bad_pk(self):
-        error = self.repo.steal(pk=10 ** 10)
-        self.assertEqual(error.message, errors.Error.build_resource_error().message)

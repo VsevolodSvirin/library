@@ -125,13 +125,18 @@ class BookDeleteRequestObject(ValidRequestObject):
 
 
 class BookUpdateRequestObject(ValidRequestObject):
-    def __init__(self, pk, patch=None):
+    def __init__(self, pk, patch=None, action=None):
         self.pk = pk
         self.patch = patch
+        self.action = action
 
     @classmethod
     def from_dict(cls, adict):
         invalid_req = InvalidRequestObject()
+
+        adict['action'] = 'update'
+        patch_list = list(Book.__slots__)
+        patch_list.append('action')
 
         if not bool(adict):
             invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
@@ -143,8 +148,21 @@ class BookUpdateRequestObject(ValidRequestObject):
             invalid_req.add_error('patch', 'has to pass patch instructions')
         elif not isinstance(adict.get('patch'), collections.Mapping):
             invalid_req.add_error('patch', 'is not iterable')
-        elif not set(adict.get('patch').keys()) < set(Book.__slots__):
+        elif not set(adict.get('patch').keys()) < set(patch_list):
             invalid_req.add_error('patch', 'parameters in patch are wrong')
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        if 'reader' in adict.get('patch'):
+            if len(adict) > 1:
+                invalid_req.add_error('patch', 'reader with other parameters is forbidden')
+            elif adict.get['reader'] is None:
+                adict['action'] = 'take'
+            elif not isinstance(adict.get['reader'], Reader):
+                invalid_req.add_error('reader', 'just super wrong')
+            else:
+                adict['action'] = 'give'
 
         if invalid_req.has_errors():
             return invalid_req
@@ -153,68 +171,20 @@ class BookUpdateRequestObject(ValidRequestObject):
 
 
 class BookGiveRequestObject(ValidRequestObject):
-    def __init__(self, pk, reader):
+    def __init__(self, pk, patch):
         self.pk = pk
-        self.reader = reader
+        self.patch = patch
 
     @classmethod
     def from_dict(cls, adict):
-        invalid_req = InvalidRequestObject()
-
-        if not bool(adict):
-            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
-        elif 'pk' not in adict.keys():
-            invalid_req.add_error('primary key', 'has to pass primary key')
-        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
-            invalid_req.add_error('primary key', 'has to be integer')
-        elif 'reader' not in adict.keys():
-            invalid_req.add_error('reader', 'has to pass reader')
-        elif not isinstance(adict.get('reader'), Reader):
-            invalid_req.add_error('reader', 'has to be an instance of Reader')
-
-        if invalid_req.has_errors():
-            return invalid_req
-
-        return BookGiveRequestObject(pk=int(adict.get('pk')), reader=adict.get('reader'))
+        return BookGiveRequestObject(pk=int(adict.get('pk')), patch=adict.get('patch'))
 
 
 class BookReturnRequestObject(ValidRequestObject):
-    def __init__(self, pk):
+    def __init__(self, pk, patch):
         self.pk = pk
+        self.patch = patch
 
     @classmethod
     def from_dict(cls, adict):
-        invalid_req = InvalidRequestObject()
-
-        if not bool(adict):
-            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
-        elif 'pk' not in adict.keys():
-            invalid_req.add_error('primary key', 'has to pass primary key')
-        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
-            invalid_req.add_error('primary key', 'has to be integer')
-
-        if invalid_req.has_errors():
-            return invalid_req
-
-        return BookReturnRequestObject(pk=int(adict.get('pk')))
-
-
-class BookStealRequestObject(ValidRequestObject):
-    def __init__(self, pk):
-        self.pk = pk
-
-    @classmethod
-    def from_dict(cls, adict):
-        invalid_req = InvalidRequestObject()
-
-        if not bool(adict):
-            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
-        elif 'pk' not in adict.keys():
-            invalid_req.add_error('primary key', 'has to pass primary key')
-        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
-            invalid_req.add_error('primary key', 'has to be integer')
-
-        if invalid_req.has_errors():
-            return invalid_req
-
-        return BookStealRequestObject(pk=int(adict.get('pk')))
+        return BookReturnRequestObject(pk=int(adict.get('pk')), patch=adict.get('patch'))

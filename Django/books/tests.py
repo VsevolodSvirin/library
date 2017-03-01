@@ -1,13 +1,16 @@
+import datetime
 import json
 from unittest import mock
 from unittest.mock import patch
 
 from django.test import Client
 from django.test import TestCase
+
 from django.urls import reverse
 
 import shared.response_object as ro
 from domains.book import Book
+from domains.reader import Reader
 from serializers import books
 from shared import errors
 from shared.request_object import InvalidRequestObject
@@ -186,7 +189,7 @@ class BookUpdateViewTestCase(TestCase):
         self.c = Client()
 
     @patch('Django.books.views.BookUpdateUseCase')
-    def test_repository_details(self, mocked_use_case):
+    def test_repository_update(self, mocked_use_case):
         updated_book = Book.from_dict({'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
                                        'title': 'Fahrenheit 451',
                                        'author': 'Ray Bradbury',
@@ -197,7 +200,60 @@ class BookUpdateViewTestCase(TestCase):
                                        })
 
         mocked_use_case().execute.return_value = ro.ResponseSuccess(updated_book)
-        response = self.c.patch('/books/1/', {"title": "Fahrenheit 451", "author": "Ray Bradbury"})
+        response = self.c.patch(
+            '/books/1/', {"title": "Fahrenheit 451", "author": "Ray Bradbury", 'action': 'update'}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(json.dumps(updated_book, cls=books.BookEncoder)),
+                         json.loads(response.content.decode('utf-8')))
+
+
+class BookGiveViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @patch('Django.books.views.BookGiveUseCase')
+    def test_repository_give(self, mocked_use_case):
+        reader = Reader.from_dict({
+            'code': 'r2rwr3re-bdfc-e2ww-5644-hd94id04kd9r',
+            'full_name': 'John Smith',
+            'reg_date': datetime.date(2017, 2, 13)
+        })
+        updated_book = Book.from_dict({'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
+                                       'title': 'Fahrenheit 451',
+                                       'author': 'Ray Bradbury',
+                                       'year': 1984,
+                                       'language': 'English',
+                                       'is_available': False,
+                                       'reader': reader
+                                       })
+
+        mocked_use_case().execute.return_value = ro.ResponseSuccess(updated_book)
+        response = self.c.patch('/books/1/', {"reader": reader, 'action': 'give'})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(json.dumps(updated_book, cls=books.BookEncoder)),
+                         json.loads(response.content.decode('utf-8')))
+
+
+class BookReturnViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @patch('Django.books.views.BookReturnUseCase')
+    def test_repository_return(self, mocked_use_case):
+        updated_book = Book.from_dict({'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
+                                       'title': 'Fahrenheit 451',
+                                       'author': 'Ray Bradbury',
+                                       'year': 1984,
+                                       'language': 'English',
+                                       'is_available': True,
+                                       'reader': None
+                                       })
+
+        mocked_use_case().execute.return_value = ro.ResponseSuccess(updated_book)
+        response = self.c.patch('/books/1/', {"reader": None, 'action': 'take'})
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(json.dumps(updated_book, cls=books.BookEncoder)),

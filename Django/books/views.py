@@ -8,9 +8,10 @@ from repo.DjangoORM.books import DjangoORMBookRepository
 from serializers.books import BookEncoder
 from shared import errors
 from shared import response_object as res
-from use_cases.books import BookAddUseCase, BookListUseCase, BookDetailsUseCase, BookDeleteUseCase, BookUpdateUseCase
+from use_cases.books import BookAddUseCase, BookListUseCase, BookDetailsUseCase, BookDeleteUseCase, BookUpdateUseCase, \
+    BookReturnUseCase, BookGiveUseCase
 from use_cases.request_objects.books import BookAddRequestObject, BookListRequestObject, BookDetailsRequestObject, \
-    BookDeleteRequestObject, BookUpdateRequestObject
+    BookDeleteRequestObject, BookUpdateRequestObject, BookGiveRequestObject, BookReturnRequestObject
 
 STATUS_CODES = {
     res.ResponseSuccess.SUCCESS: 200,
@@ -72,10 +73,22 @@ def book_detail(request, pk):
 
     if request.method == 'PATCH':
         patch_data = request.POST
-        request_object = BookUpdateRequestObject.from_dict({'pk': pk, 'patch': patch_data})
-
         repo = DjangoORMBookRepository()
-        use_case = BookUpdateUseCase(repo)
+        if "'action': 'update'" in str(patch_data):
+            request_object = BookUpdateRequestObject.from_dict(
+                {'pk': pk, 'patch': patch_data}
+            )
+            use_case = BookUpdateUseCase(repo)
+        elif "'action': 'give'" in str(patch_data):
+            request_object = BookGiveRequestObject.from_dict(
+                {'pk': pk, 'patch': patch_data}
+            )
+            use_case = BookGiveUseCase(repo)
+        elif "'action': 'take'" in str(patch_data):
+            request_object = BookReturnRequestObject.from_dict(
+                {'pk': pk, 'patch': patch_data}
+            )
+            use_case = BookReturnUseCase(repo)
 
         response = use_case.execute(request_object)
         return HttpResponse(content=json.dumps(response.value, cls=BookEncoder), content_type='application/json',

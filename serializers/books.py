@@ -1,9 +1,12 @@
 import json
 
+from serializers.readers import ReaderEncoder
+
 
 class BookEncoder(json.JSONEncoder):
     def default(self, o):
         try:
+            reader = json.dumps(o.reader, cls=ReaderEncoder)
             to_serialize = {
                 'code': o.code,
                 'title': o.title,
@@ -11,8 +14,9 @@ class BookEncoder(json.JSONEncoder):
                 'year': o.year,
                 'language': o.language,
                 'is_available': o.is_available,
-                'reader': o.reader,
+                'reader': reader,
             }
             return to_serialize
         except AttributeError:
-            return super().default(o)
+            return super().default(self, o)
+
