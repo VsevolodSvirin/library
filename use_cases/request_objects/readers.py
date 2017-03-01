@@ -99,3 +99,55 @@ class ReaderDetailsRequestObject(ValidRequestObject):
             return invalid_req
 
         return ReaderDetailsRequestObject(pk=int(adict.get('pk')))
+
+
+class ReaderDeleteRequestObject(ValidRequestObject):
+    def __init__(self, pk):
+        self.pk = pk
+
+    @classmethod
+    def from_dict(cls, adict):
+        invalid_req = InvalidRequestObject()
+
+        if not bool(adict):
+            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
+        elif 'pk' not in adict.keys():
+            invalid_req.add_error('primary key', 'has to pass primary key')
+        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
+            invalid_req.add_error('primary key', 'has to be integer')
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        return ReaderDeleteRequestObject(pk=int(adict.get('pk')))
+
+
+class ReaderUpdateRequestObject(ValidRequestObject):
+    def __init__(self, pk, patch=None):
+        self.pk = pk
+        self.patch = patch
+
+    @classmethod
+    def from_dict(cls, adict):
+        invalid_req = InvalidRequestObject()
+
+        if not bool(adict):
+            invalid_req.add_error('request dictionary', 'is empty, has to pass primary key')
+        elif 'pk' not in adict.keys():
+            invalid_req.add_error('primary key', 'has to pass primary key')
+        elif not isinstance(adict.get('pk'), int) and not check_if_int(adict.get('pk')):
+            invalid_req.add_error('primary key', 'has to be integer')
+        elif 'patch' not in adict.keys():
+            invalid_req.add_error('patch', 'has to pass patch instructions')
+        elif not isinstance(adict.get('patch'), collections.Mapping):
+            invalid_req.add_error('patch', 'is not iterable')
+        elif not set(adict.get('patch').keys()) < set(Reader.__slots__):
+            invalid_req.add_error('patch', 'parameters in patch are wrong')
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        if invalid_req.has_errors():
+            return invalid_req
+
+        return ReaderUpdateRequestObject(pk=int(adict.get('pk')), patch=adict.get('patch', None))

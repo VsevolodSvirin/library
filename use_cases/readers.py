@@ -30,3 +30,27 @@ class ReaderDetailsUseCase(use_case.UseCase):
             return response_object.ResponseFailure.from_error(resp)
         else:
             return response_object.ResponseSuccess(resp)
+
+
+class ReaderDeleteUseCase(use_case.UseCase):
+    def __init__(self, repo):
+        self.repo = repo
+
+    def process_request(self, request_object):
+        resp = self.repo.delete(pk=request_object.pk)
+        if isinstance(resp, errors.Error):
+            return response_object.ResponseFailure.from_error(resp)
+        else:
+            return response_object.ResponseSuccess()
+
+
+class ReaderUpdateUseCase(use_case.UseCase):
+    def __init__(self, repo):
+        self.repo = repo
+
+    def process_request(self, request_object):
+        resp = self.repo.update(pk=request_object.pk, patch=request_object.patch)
+        if isinstance(resp, errors.Error):
+            return response_object.ResponseFailure.from_error(resp)
+        else:
+            return response_object.ResponseSuccess(resp)

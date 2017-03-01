@@ -17,7 +17,7 @@ def test_reader_addition(adict):
     code = 'f853578c-fc0f-4e65-81b8-566c5dffa35a'
     reader = Reader(code=code, full_name=adict['full_name'], reg_date=adict['reg_date'])
     repo = mock.Mock()
-    repo.create.return_value = reader
+    repo.from_dict.return_value = reader
 
     reader_list_add_case = readers.ReaderAddUseCase(repo)
     request_object = request_readers.ReaderAddRequestObject.from_dict(adict)
@@ -25,5 +25,5 @@ def test_reader_addition(adict):
     response_object = reader_list_add_case.execute(request_object)
     assert bool(response_object) is True
 
-    repo.create.assert_called_with(reader=adict)
+    repo.from_dict.assert_called_with(adict)
     assert response_object.value == reader
