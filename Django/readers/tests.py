@@ -57,7 +57,7 @@ class ReadersAddViewTestCase(TestCase):
 
     @patch('Django.readers.views.ReaderAddUseCase')
     def test_with_system_error(self, mocked_use_case):
-        error = errors.Error.build_system_error(Exception('database failure',))
+        error = errors.Error.build_system_error(Exception('database failure', ))
         mocked_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.post(reverse('readers_list'), {})
@@ -106,7 +106,7 @@ class ReaderListViewTestCase(TestCase):
 
     @patch('Django.readers.views.ReaderListUseCase')
     def test_get_failed_response(self, mock_use_case):
-        error = errors.Error.build_system_error(Exception('database failure',))
+        error = errors.Error.build_system_error(Exception('database failure', ))
         mock_use_case().execute.return_value = ro.ResponseFailure.from_error(error)
 
         response = self.c.get(reverse('readers_list'), {})
@@ -127,3 +127,23 @@ class ReaderListViewTestCase(TestCase):
             {'filters': {'param1': 'value1', 'param2': 'value2'}}
         )
         mocked_use_case().execute.assert_called_with(internal_request_object)
+
+
+class ReaderDetailsViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @patch('Django.readers.views.ReaderDetailsUseCase')
+    def test_repository_details(self, mocked_use_case):
+        reader = Reader.from_dict({
+            'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
+            'full_name': 'VS',
+            'reg_date': datetime.date(2010, 1, 1)
+        })
+
+        mocked_use_case().execute.return_value = ro.ResponseSuccess(reader)
+        response = self.c.get('/readers/1/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(json.dumps(reader, cls=readers.ReaderEncoder)),
+                         json.loads(response.content.decode('utf-8')))

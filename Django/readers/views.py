@@ -3,12 +3,14 @@ import json
 
 from django.http import HttpResponse
 
+from Django.django_shared.request_handlers import request_standartizer
 from repo.DjangoORM.readers import DjangoORMReaderRepository
 from serializers.readers import ReaderEncoder
 from shared import errors
 from shared import response_object as res
-from use_cases.readers import ReaderAddUseCase, ReaderListUseCase
-from use_cases.request_objects.readers import ReaderAddRequestObject, ReaderListRequestObject
+from use_cases.readers import ReaderAddUseCase, ReaderListUseCase, ReaderDetailsUseCase
+from use_cases.request_objects.readers import ReaderAddRequestObject, ReaderListRequestObject, \
+    ReaderDetailsRequestObject
 
 STATUS_CODES = {
     res.ResponseSuccess.SUCCESS: 200,
@@ -50,3 +52,17 @@ def readers_list(request):
 
     return HttpResponse(json.dumps(response.value, cls=ReaderEncoder), content_type='application/json',
                         status=STATUS_CODES[response.type])
+
+
+@request_standartizer
+def reader_detail(request, pk):
+    request_object = ReaderDetailsRequestObject.from_dict({'pk': pk})
+
+    repo = DjangoORMReaderRepository()
+    use_case = ReaderDetailsUseCase(repo)
+
+    response = use_case.execute(request_object)
+
+    return HttpResponse(json.dumps(response.value, cls=ReaderEncoder), content_type='application/json',
+                        status=STATUS_CODES[response.type])
+
