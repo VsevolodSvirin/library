@@ -4,6 +4,7 @@ from django.db import IntegrityError
 
 from Django.readers.models import Reader
 from domains.reader import Reader as DomainReader
+from shared import errors
 
 
 class DjangoORMReaderRepository:
@@ -43,3 +44,12 @@ class DjangoORMReaderRepository:
             readers = Reader.objects.filter(**filters)
 
         return [cls._convert_to_domain(reader) for reader in readers]
+
+    @classmethod
+    def details(cls, pk):
+        try:
+            reader = Reader.objects.get(pk=pk)
+            return cls._convert_to_domain(reader)
+        except Exception:
+            error = errors.Error.build_resource_error()
+            return error

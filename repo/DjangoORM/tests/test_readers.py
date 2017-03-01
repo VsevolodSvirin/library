@@ -4,9 +4,10 @@ from unittest.mock import patch
 from django.db import IntegrityError
 from django.test import TestCase
 
-from Django.books.models import Reader
+from Django.readers.models import Reader
 from domains.reader import Reader as DomainReader
 from repo.DjangoORM.readers import DjangoORMReaderRepository
+from shared import errors
 
 
 class TestException(Exception):
@@ -43,7 +44,7 @@ class ReaderRepositoryTestCase(TestCase):
         code = 'r2rwr3re-bdfc-e2ww-5644-hd94id04kd9r'
         adict = {'code': code, 'full_name': 'VS'}
 
-        first_book = DjangoORMReaderRepository.create(**adict)
+        first_reader = DjangoORMReaderRepository.create(**adict)
 
         self.assertRaises(IntegrityError, DjangoORMReaderRepository.create, **adict)
 
@@ -71,7 +72,7 @@ class ReaderListRepositoryTestCase(TestCase):
                          full_name='Arya', reg_date=datetime.date(2014, 1, 1))
         ]
 
-    def test_book_list(self):
+    def test_reader_list(self):
         self.assertEqual(self.repo.list(), self.expected_result)
 
     def test_repository_list_with_filters_year(self):
@@ -84,3 +85,20 @@ class ReaderListRepositoryTestCase(TestCase):
 
     def test_repository_list_with_filters_title(self):
         self.assertEqual(self.repo.list(filters={'full_name': 'VS'}), [self.expected_result[0]])
+
+
+class ReaderDetailsRepositoryTestCase(TestCase):
+    def setUp(self):
+        self.repo = DjangoORMReaderRepository()
+        self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a',
+                         full_name='VS', reg_date=datetime.date(2010, 1, 1))
+
+        self.expected_reader = DomainReader(code='f853578c-fc0f-4e65-81b8-566c5dffa35a',
+                                            full_name='VS', reg_date=datetime.date(2010, 1, 1))
+
+    def test_reader_details(self):
+        self.assertEqual(self.repo.details(pk=1), self.expected_reader)
+
+    def test_reader_details_with_bad_pk(self):
+        error = self.repo.details(pk=10 ** 10)
+        self.assertEqual(error.message, errors.Error.build_resource_error().message)
