@@ -18,5 +18,5 @@ def test_return_book_use_case():
     response_object = book_return_use_case.execute(request_object)
     assert bool(response_object) is True
 
-    repo.take.assert_called_with(pk=1, reader=None)
+    repo.take.assert_called_with(pk=1, patch={'reader': None})
     assert response_object.value == book

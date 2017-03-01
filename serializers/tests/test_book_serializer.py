@@ -18,7 +18,7 @@ def test_serialize_domain_book():
             "year": 1984,
             "language": "English",
             "is_available": true,
-            "reader": null
+            "reader": "null"
         }
     """
 

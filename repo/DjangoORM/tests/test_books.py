@@ -135,7 +135,7 @@ class BookUpdateRepositoryTestCase(TestCase):
 
     def test_book_update(self):
         self.assertEqual(self.repo.update(
-            pk=1, patch={'title': 'Fahrenheit 451', 'author': 'Ray Bradbury'}), self.updated_book
+            pk=1, patch={'title': 'Fahrenheit 451', 'author': 'Ray Bradbury', 'action': 'update'}), self.updated_book
         )
 
     def test_book_update_with_bad_pk(self):
@@ -149,6 +149,7 @@ class BookGiveRepositoryTestCase(TestCase):
         self.repo_readers = DjangoORMReaderRepository()
         self.reader = self.repo_readers.create(code='r2rwr3re-bdfc-e2ww-5644-hd94id04kd9r',
                                                full_name='John Smith', reg_date=datetime.date(2016, 1, 1))
+        self.patch = {'reader': self.reader}
         self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
                          author='George Orwell', year=1984, language='English', is_available=True, reader=None)
         self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35b', title='1984',
@@ -158,14 +159,14 @@ class BookGiveRepositoryTestCase(TestCase):
                        author='George Orwell', year=1984, language='English', is_available=False, reader=self.reader)
 
     def test_book_give(self):
-        self.assertEqual(self.repo.give(pk=1, reader=self.reader), self.updated_book)
+        self.assertEqual(self.repo.give(pk=1, patch=self.patch), self.updated_book)
 
     def test_book_give_with_bad_pk(self):
-        error = self.repo.give(pk=10 ** 10, reader=self.reader)
+        error = self.repo.give(pk=10 ** 10, patch=self.patch)
         self.assertEqual(error.message, errors.Error.build_resource_error().message)
 
     def test_give_unavailable_book(self):
-        error = self.repo.give(pk=2, reader=self.reader)
+        error = self.repo.give(pk=2, patch=self.patch)
         self.assertEqual(error.message, {'primary key': ['this book is not available']})
 
 
@@ -173,8 +174,8 @@ class BookReturnRepositoryTestCase(TestCase):
     def setUp(self):
         self.repo = DjangoORMBookRepository()
         self.repo_readers = DjangoORMReaderRepository()
-        self.reader = self.repo_readers.create(code='r2rwr3re-bdfc-e2ww-5644-hd94id04kd9r',
-                                               full_name='John Smith', reg_date=datetime.date(2016, 1, 1))
+        self.reader = None
+        self.patch = {'reader': self.reader}
         self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a', title='1984',
                          author='George Orwell', year=1984, language='English', is_available=True, reader=None)
         self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35b', title='1984',
@@ -184,12 +185,12 @@ class BookReturnRepositoryTestCase(TestCase):
                        author='George Orwell', year=1984, language='English', is_available=True, reader=None)
 
     def test_book_update(self):
-        self.assertEqual(self.repo.take(pk=2, reader=None), self.updated_book)
+        self.assertEqual(self.repo.take(pk=2, patch=self.patch), self.updated_book)
 
     def test_book_update_with_bad_pk(self):
-        error = self.repo.take(pk=10 ** 10, reader=None)
+        error = self.repo.take(pk=10 ** 10, patch=self.patch)
         self.assertEqual(error.message, errors.Error.build_resource_error().message)
 
     def test_return_available_book(self):
-        error = self.repo.take(pk=1, reader=None)
+        error = self.repo.take(pk=1, patch=self.patch)
         self.assertEqual(error.message, {'primary key': ['this book is in the library']})
