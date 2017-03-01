@@ -102,3 +102,35 @@ class ReaderDetailsRepositoryTestCase(TestCase):
     def test_reader_details_with_bad_pk(self):
         error = self.repo.details(pk=10 ** 10)
         self.assertEqual(error.message, errors.Error.build_resource_error().message)
+
+
+class ReaderDeleteRepositoryTestCase(TestCase):
+    def setUp(self):
+        self.repo = DjangoORMReaderRepository()
+        self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a',
+                         full_name='VS', reg_date=datetime.date(2010, 1, 1))
+
+    def test_reader_delete(self):
+        self.assertEqual(self.repo.delete(pk=1), None)
+
+    def test_reader_delete_with_bad_pk(self):
+        error = self.repo.delete(pk=10 ** 10)
+        self.assertEqual(error.message, errors.Error.build_resource_error().message)
+
+
+class ReaderUpdateRepositoryTestCase(TestCase):
+    def setUp(self):
+        self.repo = DjangoORMReaderRepository()
+        self.repo.create(code='f853578c-fc0f-4e65-81b8-566c5dffa35a',
+                         full_name='VS', reg_date=datetime.date(2010, 1, 1))
+        self.updated_book = DomainReader(code='f853578c-fc0f-4e65-81b8-566c5dffa35a',
+                                         full_name='Vsevolod Svirin', reg_date=datetime.date(2010, 1, 1))
+
+    def test_reader_update(self):
+        self.assertEqual(self.repo.update(
+            pk=1, patch={'full_name': 'Vsevolod Svirin'}), self.updated_book
+        )
+
+    def test_reader_update_with_bad_pk(self):
+        error = self.repo.update(pk=10 ** 10, patch={'full_name': 'Vsevolod Svirin'})
+        self.assertEqual(error.message, errors.Error.build_resource_error().message)

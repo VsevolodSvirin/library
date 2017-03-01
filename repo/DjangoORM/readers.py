@@ -53,3 +53,22 @@ class DjangoORMReaderRepository:
         except Exception:
             error = errors.Error.build_resource_error()
             return error
+
+    @classmethod
+    def delete(cls, pk):
+        try:
+            Reader.objects.get(pk=pk).delete()
+            return
+        except Exception:
+            error = errors.Error.build_resource_error()
+            return error
+
+    @classmethod
+    def update(cls, pk, patch):
+        try:
+            Reader.objects.filter(pk=pk).update(**patch)
+            book = Reader.objects.get(pk=pk)
+            return cls._convert_to_domain(book)
+        except Exception:
+            error = errors.Error.build_resource_error()
+            return error
