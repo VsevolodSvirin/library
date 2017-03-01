@@ -20,6 +20,7 @@ STATUS_CODES = {
 }
 
 
+@request_standartizer
 def readers_list(request):
     if request.method == 'POST':
         status_codes = copy.deepcopy(STATUS_CODES)

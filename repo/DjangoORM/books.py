@@ -99,7 +99,7 @@ class DjangoORMBookRepository(object):
     def take(cls, pk, patch):
         try:
             if not Book.objects.get(pk=pk).is_available:
-                Book.objects.filter(pk=pk).update(is_available=True, reader=patch.get('reader'))
+                Book.objects.filter(pk=pk).update(is_available=True, reader=None)
                 book = Book.objects.get(pk=pk)
                 return cls._convert_to_domain(book)
             else:

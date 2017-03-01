@@ -16,7 +16,7 @@ class ReaderAddUseCase(use_case.UseCase):
         self.repo = repo
 
     def process_request(self, request_object):
-        reader = self.repo.create(reader=request_object.init_values)
+        reader = self.repo.from_dict(request_object.init_values)
         return response_object.ResponseSuccess(reader)
 
 

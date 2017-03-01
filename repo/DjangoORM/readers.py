@@ -26,7 +26,7 @@ class DjangoORMReaderRepository:
     def from_dict(cls, adict):
         while True:
             try:
-                code = uuid.uuid4()
+                code = str(uuid.uuid4())
                 reader = cls.create(code=code, **adict)
                 break
             except IntegrityError as e:
