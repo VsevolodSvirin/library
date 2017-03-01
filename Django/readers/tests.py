@@ -147,3 +147,37 @@ class ReaderDetailsViewTestCase(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(json.loads(json.dumps(reader, cls=readers.ReaderEncoder)),
                          json.loads(response.content.decode('utf-8')))
+
+
+class ReaderDeleteViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @patch('Django.readers.views.ReaderDeleteUseCase')
+    def test_repository_details(self, mocked_use_case):
+        mocked_use_case().execute.return_value = ro.ResponseSuccess()
+        response = self.c.delete('/readers/1/')
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual('', response.content.decode('utf-8'))
+
+
+class ReaderUpdateViewTestCase(TestCase):
+    def setUp(self):
+        self.c = Client()
+
+    @patch('Django.readers.views.ReaderUpdateUseCase')
+    def test_repository_update(self, mocked_use_case):
+        updated_reader = Reader.from_dict({'code': '3251a5bd-86be-428d-8ae9-6e51a8048c33',
+                                           'full_name': 'John Doe',
+                                           'reg_date': '2015-01-01'
+                                           })
+
+        mocked_use_case().execute.return_value = ro.ResponseSuccess(updated_reader)
+        response = self.c.patch(
+            '/readers/1/', {"full_name": "John Doe"}
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(json.dumps(updated_reader, cls=readers.ReaderEncoder)),
+                         json.loads(response.content.decode('utf-8')))
