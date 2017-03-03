@@ -4,7 +4,7 @@ from repo.Flask_Alchemy.database import db
 
 
 class Book(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    pk = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(128), unique=True)
     title = db.Column(db.String(128))
     author = db.Column(db.String(128))

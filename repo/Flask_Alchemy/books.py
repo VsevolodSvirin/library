@@ -28,9 +28,9 @@ class FlaskAlchemyBookRepository(object):
         return [cls._convert_to_domain(book) for book in books]
 
     @classmethod
-    def details(cls, id):
+    def details(cls, pk):
         try:
-            book = Book.query.get(id=id)
+            book = Book.query.get(pk=pk)
             return cls._convert_to_domain(book)
         except Exception:
             error = errors.Error.build_resource_error()

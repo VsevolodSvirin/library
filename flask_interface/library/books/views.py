@@ -40,8 +40,8 @@ def books():
                     status=STATUS_CODES[response.type])
 
 
-@blueprint.route('/books/<id>/', methods=['GET'])
-def book_details(id):
+@blueprint.route('/books/<pk>/', methods=['GET'])
+def book_details(pk):
     request_object = BookDetailsRequestObject.from_dict({'pk': pk})
 
     repo = FlaskAlchemyBookRepository()
