@@ -1,6 +1,8 @@
 from unittest import mock
 
 from domains.book import Book
+from shared import errors
+from shared.request_object import InvalidRequestObject
 from use_cases import books
 from use_cases.request_objects import books as request_books
 
@@ -49,3 +51,17 @@ def test_book_details_without_key():
 
     assert bool(response_object) is False
     assert response_object.value == {'primary key': ['has to pass primary key']}
+
+
+def test_book_details_with_error_as_response():
+    repo = mock.Mock()
+    error = errors.Error.build_resource_error()
+    repo.details.return_value = error
+
+    book_details_use_case = books.BookDetailsUseCase(repo)
+    request_object = request_books.BookDetailsRequestObject.from_dict({'pk': 10 ** 10})
+
+    response_object = book_details_use_case.execute(request_object)
+
+    assert bool(response_object) is False
+    assert response_object.value == {'resource error': ['page not found :(']}
